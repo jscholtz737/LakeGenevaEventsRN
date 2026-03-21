@@ -7,24 +7,57 @@ const CHICAGO_COORDS = {
   longitude: -87.6298,
 };
 
-const GOOGLE_MAPS_API_KEY =
-  Constants.expoConfig?.extra?.googleMapsApiKey ||
-  process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+const constantsAny = Constants as unknown as {
+  manifest?: { extra?: { googleMapsApiKey?: string } };
+  manifest2?: {
+    extra?: { expoClient?: { extra?: { googleMapsApiKey?: string } } };
+  };
+};
+
+function getGoogleMapsApiKey() {
+  const webRuntimePublicKey =
+    typeof window !== "undefined"
+      ? (window as unknown as { process?: { env?: Record<string, string> } })
+          .process?.env?.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
+      : undefined;
+
+  return (
+    Constants.expoConfig?.extra?.googleMapsApiKey ||
+    constantsAny.manifest2?.extra?.expoClient?.extra?.googleMapsApiKey ||
+    constantsAny.manifest?.extra?.googleMapsApiKey ||
+    webRuntimePublicKey ||
+    process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ||
+    process.env.GOOGLE_MAPS_API_KEY
+  );
+}
 
 export default function PlatformMapWeb() {
-  if (!GOOGLE_MAPS_API_KEY) {
+  const [googleMapsApiKey, setGoogleMapsApiKey] = React.useState<string>();
+  const [hasResolvedKey, setHasResolvedKey] = React.useState(false);
+
+  React.useEffect(() => {
+    setGoogleMapsApiKey(getGoogleMapsApiKey());
+    setHasResolvedKey(true);
+  }, []);
+
+  if (!hasResolvedKey) {
+    return <View style={styles.container} />;
+  }
+
+  if (!googleMapsApiKey) {
     return (
       <View style={styles.centeredContainer}>
         <Text style={styles.messageTitle}>Google Maps key is missing</Text>
         <Text style={styles.messageText}>
-          Add GOOGLE_MAPS_API_KEY to your .env file.
+          Add GOOGLE_MAPS_API_KEY or EXPO_PUBLIC_GOOGLE_MAPS_API_KEY to your
+          .env file.
         </Text>
       </View>
     );
   }
 
   const mapSrc =
-    `https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_API_KEY}` +
+    `https://www.google.com/maps/embed/v1/view?key=${googleMapsApiKey}` +
     `&center=${CHICAGO_COORDS.latitude},${CHICAGO_COORDS.longitude}&zoom=11&maptype=roadmap`;
 
   return (
