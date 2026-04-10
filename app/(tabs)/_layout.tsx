@@ -2,17 +2,12 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
 import React from "react";
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { StatusBar } from "react-native";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <React.Fragment>
-      <StatusBar
-        barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
-      />
+      <StatusBar />
       <Tabs>
         <Tabs.Screen
           name="map"

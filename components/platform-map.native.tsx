@@ -1,10 +1,10 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
-const CHICAGO_COORDS = {
-  latitude: 41.8781,
-  longitude: -87.6298,
+const GENEVA_LAKE_COORDS = {
+  latitude: 42.5722,
+  longitude: -88.4975,
 };
 
 export default function PlatformMapNative() {
@@ -14,13 +14,11 @@ export default function PlatformMapNative() {
         style={styles.map}
         provider={PROVIDER_GOOGLE}
         initialRegion={{
-          ...CHICAGO_COORDS,
-          latitudeDelta: 0.09,
-          longitudeDelta: 0.04,
+          ...GENEVA_LAKE_COORDS,
+          latitudeDelta: 0.3,
+          longitudeDelta: 0.1,
         }}
-      >
-        <Marker coordinate={CHICAGO_COORDS} title="Chicago" />
-      </MapView>
+      ></MapView>
     </View>
   );
 }

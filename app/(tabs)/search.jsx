@@ -1,20 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
-
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <View style={styles.container}>
-      <Text
-        style={[
-          styles.text,
-          { color: colorScheme === "dark" ? "black" : "white" },
-        ]}
-      >
-        search screen
-      </Text>
+      <Text style={[styles.text]}>search screen</Text>
     </View>
   );
 }
