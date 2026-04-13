@@ -1,15 +1,81 @@
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { Dimensions, FlatList, StyleSheet, View } from "react-native";
+import EventCard from "../../components/event-card";
 import Header from "../../components/header";
 import PlatformMap from "../../components/platform-map";
+import { useEvents } from "../../hooks/use-events";
+
+type EventMapItem = {
+  id: string;
+  imageUri: string;
+  latitude: number | null;
+  location: string;
+  longitude: number | null;
+  name: string;
+  startDate: Date | null;
+  time: string;
+};
+
+function startOfDay(date: Date) {
+  const normalizedDate = new Date(date);
+  normalizedDate.setHours(0, 0, 0, 0);
+  return normalizedDate;
+}
+
+function isSameDay(left: Date | null, right: Date) {
+  if (!(left instanceof Date)) {
+    return false;
+  }
+
+  return startOfDay(left).getTime() === startOfDay(right).getTime();
+}
 
 export default function MapScreen() {
+  const tabBarHeight = useBottomTabBarHeight();
+  const cardWidth = Math.max(Dimensions.get("window").width - 32, 280);
+  const [selectedDate, setSelectedDate] = React.useState(() =>
+    startOfDay(new Date()),
+  );
+  const { events } = useEvents() as { events: EventMapItem[] };
+
+  const mapEvents = React.useMemo(
+    () =>
+      events.filter(
+        (event: EventMapItem) =>
+          isSameDay(event.startDate, selectedDate) &&
+          typeof event.latitude === "number" &&
+          typeof event.longitude === "number",
+      ),
+    [events, selectedDate],
+  );
+
   return (
     <View style={styles.screen}>
-      <Header />
+      <Header onDateChange={setSelectedDate} />
       <View style={styles.mapContainer}>
-        <PlatformMap />
+        <PlatformMap events={mapEvents} />
       </View>
+      {!!mapEvents.length && (
+        <View style={[styles.carouselContainer, { bottom: tabBarHeight + 8 }]}>
+          <FlatList
+            data={mapEvents}
+            horizontal
+            keyExtractor={(event) => event.id}
+            renderItem={({ item }) => (
+              <EventCard
+                title={item.name}
+                location={item.location}
+                time={item.time}
+                imageUri={item.imageUri}
+                style={[styles.mapEventCard, { width: cardWidth }]}
+              />
+            )}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.carouselContent}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -20,5 +86,17 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
+  },
+  carouselContainer: {
+    left: 0,
+    position: "absolute",
+    right: 0,
+  },
+  carouselContent: {
+    paddingRight: 8,
+  },
+  mapEventCard: {
+    marginHorizontal: 8,
+    marginVertical: 0,
   },
 });

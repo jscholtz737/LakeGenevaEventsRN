@@ -1,8 +1,8 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 
-export default function EventCard({ title, location, time, imageUri }) {
+export default function EventCard({ title, location, time, imageUri, style }) {
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, style]}>
       <Image source={{ uri: imageUri }} style={styles.eventImage} />
       <View style={styles.infoContainer}>
         <Text numberOfLines={2} style={styles.title}>

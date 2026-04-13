@@ -31,7 +31,12 @@ function getGoogleMapsApiKey() {
   );
 }
 
-export default function PlatformMapWeb() {
+type PlatformMapWebProps = {
+  activeEventId?: string | null;
+  events?: unknown[];
+};
+
+export default function PlatformMapWeb(_props: PlatformMapWebProps) {
   const [googleMapsApiKey, setGoogleMapsApiKey] = React.useState<string>();
   const [hasResolvedKey, setHasResolvedKey] = React.useState(false);
 

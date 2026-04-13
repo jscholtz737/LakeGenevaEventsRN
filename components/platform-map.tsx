@@ -1,7 +1,12 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-export default function PlatformMapFallback() {
+type PlatformMapFallbackProps = {
+  activeEventId?: string | null;
+  events?: unknown[];
+};
+
+export default function PlatformMapFallback(_props: PlatformMapFallbackProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Map is unavailable on this platform.</Text>

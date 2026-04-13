@@ -1,5 +1,4 @@
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import React from "react";
+import { useMemo } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -9,85 +8,84 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import EventCard from "../../components/event-card";
-import { firestore } from "../../lib/firebase";
+import { useEvents } from "../../hooks/use-events";
 
-const FALLBACK_IMAGE_URI =
-  "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80";
-
-function formatEventTime(value) {
-  if (!value) {
-    return "TBD";
+function dateSortValue(value) {
+  if (!(value instanceof Date)) {
+    return Number.MAX_SAFE_INTEGER;
   }
 
-  if (typeof value === "string") {
-    return value;
+  return value.getTime();
+}
+
+function dateKey(value) {
+  if (!(value instanceof Date)) {
+    return "date-tbd";
   }
 
-  if (value instanceof Date) {
-    return value.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function dateLabel(value) {
+  if (!(value instanceof Date)) {
+    return "Date TBD";
   }
 
-  if (typeof value?.toDate === "function") {
-    const date = value.toDate();
-    return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  }
+  return value.toLocaleDateString([], {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
-  return "TBD";
+function buildSectionRows(events) {
+  const sortedEvents = [...events].sort(
+    (a, b) => dateSortValue(a.startDate) - dateSortValue(b.startDate),
+  );
+
+  const rows = [];
+  let currentDateKey = null;
+
+  sortedEvents.forEach((event) => {
+    const nextDateKey = dateKey(event.startDate);
+
+    if (nextDateKey !== currentDateKey) {
+      rows.push({
+        id: `header-${nextDateKey}`,
+        type: "header",
+        label: dateLabel(event.startDate),
+      });
+      currentDateKey = nextDateKey;
+    }
+
+    rows.push({
+      id: event.id,
+      type: "event",
+      event,
+    });
+  });
+
+  return rows;
 }
 
 export default function AllTab() {
-  const [events, setEvents] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const eventsQuery = query(collection(firestore, "events"), orderBy("time"));
-
-    const unsubscribe = onSnapshot(
-      eventsQuery,
-      (snapshot) => {
-        const nextEvents = snapshot.docs.map((doc) => {
-          const data = doc.data();
-
-          const imageUri =
-            typeof data.imageName === "string" &&
-            data.imageName.startsWith("http")
-              ? data.imageName
-              : FALLBACK_IMAGE_URI;
-
-          return {
-            id: doc.id,
-            description: data.description ?? "",
-            endDate: data.endDate ?? null,
-            imageName: data.imageName ?? "",
-            imageUri,
-            latitude: typeof data.latitude === "number" ? data.latitude : null,
-            link: data.link ?? "",
-            location: data.location ?? "Location TBD",
-            locationDetails: data.locationDetails ?? "",
-            longitude:
-              typeof data.longitude === "number" ? data.longitude : null,
-            name: data.name ?? "Untitled Event",
-            recurring: data.recurring ?? "",
-            startDate: data.startDate ?? null,
-            time: formatEventTime(data.time),
-          };
-        });
-
-        setEvents(nextEvents);
-        setIsLoading(false);
-      },
-      () => {
-        setEvents([]);
-        setIsLoading(false);
-      },
-    );
-
-    return unsubscribe;
-  }, []);
+  const { events, isLoading, error } = useEvents();
+  const sectionRows = useMemo(() => buildSectionRows(events), [events]);
+  const stickyHeaderIndices = useMemo(
+    () =>
+      sectionRows
+        .map((item, index) => (item.type === "header" ? index : -1))
+        .filter((index) => index >= 0),
+    [sectionRows],
+  );
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
         <View style={styles.stateContainer}>
           <ActivityIndicator size="large" color="#204A72" />
           <Text style={styles.stateText}>Loading events...</Text>
@@ -98,26 +96,37 @@ export default function AllTab() {
 
   if (!events.length) {
     return (
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
         <View style={styles.stateContainer}>
-          <Text style={styles.stateText}>No events found in Firestore.</Text>
+          <Text style={styles.stateText}>
+            {error
+              ? "Unable to load events from database."
+              : "No events found in database."}
+          </Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <FlatList
-        data={events}
-        renderItem={({ item }) => (
-          <EventCard
-            title={item.name}
-            location={item.location}
-            time={item.time}
-            imageUri={item.imageUri}
-          />
-        )}
+        data={sectionRows}
+        stickyHeaderIndices={stickyHeaderIndices}
+        renderItem={({ item }) => {
+          if (item.type === "header") {
+            return <Text style={styles.dateHeader}>{item.label}</Text>;
+          }
+
+          return (
+            <EventCard
+              title={item.event.name}
+              location={item.event.location}
+              time={item.event.time}
+              imageUri={item.event.imageUri}
+            />
+          );
+        }}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
       />
@@ -131,7 +140,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#F4F7FB",
   },
   listContent: {
-    paddingVertical: 8,
+    paddingBottom: 8,
+  },
+  dateHeader: {
+    backgroundColor: "#F4F7FB",
+    color: "#10243A",
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 4,
+    marginHorizontal: 16,
+    marginTop: 0,
+    paddingBottom: 6,
+    paddingTop: 12,
   },
   stateContainer: {
     alignItems: "center",
