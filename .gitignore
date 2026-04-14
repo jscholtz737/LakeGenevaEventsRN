@@ -34,7 +34,7 @@ yarn-error.*
 .env
 .env*.local
 
-# Firebase service config files (contain API keys)
+# Firebase service configuration files (contain API keys)
 GoogleService-Info.plist
 google-services.json
 
