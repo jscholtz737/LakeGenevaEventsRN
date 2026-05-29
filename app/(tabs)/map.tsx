@@ -57,7 +57,7 @@ export default function MapScreen() {
         <PlatformMap events={mapEvents} />
       </View>
       {!!mapEvents.length && (
-        <View style={[styles.carouselContainer, { bottom: tabBarHeight + 8 }]}>
+        <View style={[styles.carouselContainer, { bottom: tabBarHeight + 10 }]}>
           <FlatList
             data={mapEvents}
             horizontal
