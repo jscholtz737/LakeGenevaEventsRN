@@ -1,6 +1,13 @@
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React from "react";
-import { Dimensions, FlatList, StyleSheet, View } from "react-native";
+import {
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import EventCard from "../../components/event-card";
 import Header from "../../components/header";
 import PlatformMap from "../../components/platform-map";
@@ -39,6 +46,8 @@ export default function MapScreen() {
     startOfDay(new Date()),
   );
   const [activeEventId, setActiveEventId] = React.useState<string | null>(null);
+  const [isMapMoved, setIsMapMoved] = React.useState(false);
+  const [resetKey, setResetKey] = React.useState(0);
   const flatListRef = React.useRef<FlatList<EventMapItem>>(null);
   const { events } = useEvents() as { events: EventMapItem[] };
 
@@ -76,6 +85,15 @@ export default function MapScreen() {
     [mapEvents],
   );
 
+  const handleMapMoved = React.useCallback((moved: boolean) => {
+    setIsMapMoved(moved);
+  }, []);
+
+  const handleResetMap = React.useCallback(() => {
+    setIsMapMoved(false);
+    setResetKey((k) => k + 1);
+  }, []);
+
   React.useEffect(() => {
     if (mapEvents.length > 0 && !activeEventId) {
       setActiveEventId(mapEvents[0].id);
@@ -90,10 +108,20 @@ export default function MapScreen() {
           activeEventId={activeEventId}
           events={mapEvents}
           onEventPress={handleEventPress}
+          onMapMoved={handleMapMoved}
+          resetKey={resetKey}
         />
       </View>
       {!!mapEvents.length && (
         <View style={[styles.carouselContainer, { bottom: tabBarHeight - 50 }]}>
+          {isMapMoved && (
+            <TouchableOpacity
+              onPress={handleResetMap}
+              style={styles.resetButton}
+            >
+              <Text style={styles.resetButtonText}>Reset Map</Text>
+            </TouchableOpacity>
+          )}
           <FlatList
             ref={flatListRef}
             data={mapEvents}
@@ -139,5 +167,26 @@ const styles = StyleSheet.create({
   },
   mapEventCard: {
     marginHorizontal: 8,
+  },
+  resetButton: {
+    alignItems: "center",
+    alignSelf: "center",
+    backgroundColor: "#90EE90",
+    borderColor: "#000000",
+    borderRadius: 20,
+    borderWidth: 0.5,
+    marginBottom: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  resetButtonText: {
+    color: "#10243A",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });
