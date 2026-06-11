@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 
 const GENEVA_LAKE_COORDS = {
@@ -80,9 +80,16 @@ export default function PlatformMapNative({
               longitude: event.longitude,
             }}
             description={event.location}
-            key={event.id}
+            key={
+              Platform.OS === "android"
+                ? `${event.id}-${event.id === activeEventId ? "active" : "inactive"}`
+                : event.id
+            }
             pinColor={event.id === activeEventId ? "#FF0000" : "#000099"}
             title={event.name}
+            tracksViewChanges={
+              Platform.OS === "android" && event.id === activeEventId
+            }
             onPress={() => onEventPress?.(event.id)}
           />
         ))}
