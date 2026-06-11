@@ -25,11 +25,13 @@ type MapEvent = {
 type PlatformMapNativeProps = {
   activeEventId?: string | null;
   events?: MapEvent[];
+  onEventPress?: (eventId: string) => void;
 };
 
 export default function PlatformMapNative({
   activeEventId,
   events = [],
+  onEventPress,
 }: PlatformMapNativeProps) {
   return (
     <View style={styles.container}>
@@ -48,6 +50,7 @@ export default function PlatformMapNative({
             key={event.id}
             pinColor={event.id === activeEventId ? "#FF0000" : "#000099"}
             title={event.name}
+            onPress={() => onEventPress?.(event.id)}
           />
         ))}
       </MapView>

@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 type PlatformMapFallbackProps = {
   activeEventId?: string | null;
   events?: unknown[];
+  onEventPress?: (eventId: string) => void;
 };
 
 export default function PlatformMapFallback(_props: PlatformMapFallbackProps) {

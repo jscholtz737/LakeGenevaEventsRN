@@ -39,6 +39,7 @@ export default function MapScreen() {
     startOfDay(new Date()),
   );
   const [activeEventId, setActiveEventId] = React.useState<string | null>(null);
+  const flatListRef = React.useRef<FlatList<EventMapItem>>(null);
   const { events } = useEvents() as { events: EventMapItem[] };
 
   const mapEvents = React.useMemo(
@@ -63,6 +64,18 @@ export default function MapScreen() {
     [mapEvents, snapInterval],
   );
 
+  const handleEventPress = React.useCallback(
+    (eventId: string) => {
+      const index = mapEvents.findIndex((event) => event.id === eventId);
+
+      if (index !== -1) {
+        setActiveEventId(eventId);
+        flatListRef.current?.scrollToIndex({ animated: true, index });
+      }
+    },
+    [mapEvents],
+  );
+
   React.useEffect(() => {
     if (mapEvents.length > 0 && !activeEventId) {
       setActiveEventId(mapEvents[0].id);
@@ -73,11 +86,16 @@ export default function MapScreen() {
     <View style={styles.screen}>
       <Header onDateChange={setSelectedDate} />
       <View style={styles.mapContainer}>
-        <PlatformMap activeEventId={activeEventId} events={mapEvents} />
+        <PlatformMap
+          activeEventId={activeEventId}
+          events={mapEvents}
+          onEventPress={handleEventPress}
+        />
       </View>
       {!!mapEvents.length && (
         <View style={[styles.carouselContainer, { bottom: tabBarHeight - 50 }]}>
           <FlatList
+            ref={flatListRef}
             data={mapEvents}
             decelerationRate="fast"
             disableIntervalMomentum
