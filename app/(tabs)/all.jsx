@@ -29,17 +29,39 @@ function dateKey(value) {
   return `${year}-${month}-${day}`;
 }
 
+function ordinalSuffix(day) {
+  const mod10 = day % 10;
+  const mod100 = day % 100;
+
+  if (mod10 === 1 && mod100 !== 11) {
+    return "st";
+  }
+
+  if (mod10 === 2 && mod100 !== 12) {
+    return "nd";
+  }
+
+  if (mod10 === 3 && mod100 !== 13) {
+    return "rd";
+  }
+
+  return "th";
+}
+
 function dateLabel(value) {
   if (!(value instanceof Date)) {
     return "Date TBD";
   }
 
-  return value.toLocaleDateString([], {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
+  const weekday = value.toLocaleDateString([], {
+    weekday: "long",
   });
+  const month = value.toLocaleDateString([], {
+    month: "long",
+  });
+  const day = value.getDate();
+
+  return `${weekday}, ${month} ${day}${ordinalSuffix(day)}`;
 }
 
 function buildSectionRows(events) {
@@ -48,26 +70,38 @@ function buildSectionRows(events) {
   );
 
   const rows = [];
-  let currentDateKey = null;
+  let index = 0;
 
-  sortedEvents.forEach((event) => {
-    const nextDateKey = dateKey(event.startDate);
+  while (index < sortedEvents.length) {
+    const firstEventForDate = sortedEvents[index];
+    const currentDateKey = dateKey(firstEventForDate.startDate);
+    const startIndex = index;
 
-    if (nextDateKey !== currentDateKey) {
-      rows.push({
-        id: `header-${nextDateKey}`,
-        type: "header",
-        label: dateLabel(event.startDate),
-      });
-      currentDateKey = nextDateKey;
+    while (
+      index < sortedEvents.length &&
+      dateKey(sortedEvents[index].startDate) === currentDateKey
+    ) {
+      index += 1;
     }
 
+    const eventsForDate = sortedEvents.slice(startIndex, index);
+
     rows.push({
-      id: event.id,
-      type: "event",
-      event,
+      id: `header-${currentDateKey}`,
+      type: "header",
+      label: dateLabel(firstEventForDate.startDate),
     });
-  });
+
+    eventsForDate.forEach((event, eventIndexInGroup) => {
+      rows.push({
+        id: event.id,
+        type: "event",
+        event,
+        hasMultipleEventsOnDate: eventsForDate.length > 1,
+        eventIndexInGroup,
+      });
+    });
+  }
 
   return rows;
 }
@@ -124,6 +158,11 @@ export default function AllTab() {
               location={item.event.location}
               time={item.event.time}
               imageUri={item.event.imageUri}
+              style={
+                item.hasMultipleEventsOnDate
+                  ? { marginTop: item.eventIndexInGroup === 0 ? 5 : 2 }
+                  : null
+              }
             />
           );
         }}
@@ -145,11 +184,12 @@ const styles = StyleSheet.create({
   dateHeader: {
     backgroundColor: "#F4F7FB",
     color: "#10243A",
-    fontSize: 18,
+    fontSize: 20,
+    fontStyle: "italic",
     fontWeight: "700",
-    marginBottom: 4,
+    marginBottom: 0,
     marginHorizontal: 16,
-    marginTop: 0,
+    marginTop: 20,
     paddingBottom: 6,
     paddingTop: 12,
   },

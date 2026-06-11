@@ -5,7 +5,13 @@ export default function EventCard({ title, location, time, imageUri, style }) {
     <View style={[styles.card, style]}>
       <Image source={{ uri: imageUri }} style={styles.eventImage} />
       <View style={styles.infoContainer}>
-        <Text numberOfLines={2} style={styles.title}>
+        <Text
+          adjustsFontSizeToFit
+          maxFontSizeMultiplier={1}
+          minimumFontScale={0.7}
+          numberOfLines={2}
+          style={styles.title}
+        >
           {title}
         </Text>
         <Text numberOfLines={2} style={styles.location}>
@@ -27,10 +33,9 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
-    height: 150,
     marginHorizontal: 16,
-    marginVertical: 8,
-    padding: 16,
+    marginVertical: 5,
+    padding: 5,
   },
   eventImage: {
     aspectRatio: 1,
@@ -40,11 +45,11 @@ const styles = StyleSheet.create({
   infoContainer: {
     flex: 1,
     justifyContent: "center",
-    marginHorizontal: 12,
+    marginHorizontal: 5,
   },
   title: {
     color: "#10243A",
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
   },
   location: {
@@ -60,7 +65,7 @@ const styles = StyleSheet.create({
   },
   time: {
     color: "#10243A",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
   },
 });

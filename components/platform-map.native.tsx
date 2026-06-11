@@ -23,10 +23,12 @@ type MapEvent = {
 };
 
 type PlatformMapNativeProps = {
+  activeEventId?: string | null;
   events?: MapEvent[];
 };
 
 export default function PlatformMapNative({
+  activeEventId,
   events = [],
 }: PlatformMapNativeProps) {
   return (
@@ -44,6 +46,7 @@ export default function PlatformMapNative({
             }}
             description={event.location}
             key={event.id}
+            pinColor={event.id === activeEventId ? "#FF0000" : "#000099"}
             title={event.name}
           />
         ))}

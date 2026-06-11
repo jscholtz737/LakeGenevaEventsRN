@@ -34,9 +34,11 @@ function isSameDay(left: Date | null, right: Date) {
 export default function MapScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const cardWidth = Math.max(Dimensions.get("window").width - 32, 280);
+  const snapInterval = cardWidth + 16;
   const [selectedDate, setSelectedDate] = React.useState(() =>
     startOfDay(new Date()),
   );
+  const [activeEventId, setActiveEventId] = React.useState<string | null>(null);
   const { events } = useEvents() as { events: EventMapItem[] };
 
   const mapEvents = React.useMemo(
@@ -50,18 +52,40 @@ export default function MapScreen() {
     [events, selectedDate],
   );
 
+  const handleScroll = React.useCallback(
+    (event: any) => {
+      const scrollPosition = event.nativeEvent.contentOffset.x;
+      const cardIndex = Math.round(scrollPosition / snapInterval);
+      if (cardIndex >= 0 && cardIndex < mapEvents.length) {
+        setActiveEventId(mapEvents[cardIndex].id);
+      }
+    },
+    [mapEvents, snapInterval],
+  );
+
+  React.useEffect(() => {
+    if (mapEvents.length > 0 && !activeEventId) {
+      setActiveEventId(mapEvents[0].id);
+    }
+  }, [mapEvents, activeEventId]);
+
   return (
     <View style={styles.screen}>
       <Header onDateChange={setSelectedDate} />
       <View style={styles.mapContainer}>
-        <PlatformMap events={mapEvents} />
+        <PlatformMap activeEventId={activeEventId} events={mapEvents} />
       </View>
       {!!mapEvents.length && (
-        <View style={[styles.carouselContainer, { bottom: tabBarHeight + 10 }]}>
+        <View style={[styles.carouselContainer, { bottom: tabBarHeight - 50 }]}>
           <FlatList
             data={mapEvents}
+            decelerationRate="fast"
+            disableIntervalMomentum
             horizontal
             keyExtractor={(event) => event.id}
+            onMomentumScrollEnd={handleScroll}
+            snapToAlignment="start"
+            snapToInterval={snapInterval}
             renderItem={({ item }) => (
               <EventCard
                 title={item.name}
@@ -93,10 +117,9 @@ const styles = StyleSheet.create({
     right: 0,
   },
   carouselContent: {
-    paddingRight: 8,
+    paddingHorizontal: 8,
   },
   mapEventCard: {
     marginHorizontal: 8,
-    marginVertical: 0,
   },
 });
