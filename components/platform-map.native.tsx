@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 
 const GENEVA_LAKE_COORDS = {
   latitude: 42.5722,
@@ -22,23 +22,56 @@ type MapEvent = {
   name: string;
 };
 
+const POSITION_THRESHOLD = 0.01;
+
 type PlatformMapNativeProps = {
   activeEventId?: string | null;
   events?: MapEvent[];
   onEventPress?: (eventId: string) => void;
+  onMapMoved?: (moved: boolean) => void;
+  resetKey?: number;
 };
 
 export default function PlatformMapNative({
   activeEventId,
   events = [],
   onEventPress,
+  onMapMoved,
+  resetKey,
 }: PlatformMapNativeProps) {
+  const mapViewRef = React.useRef<MapView>(null);
+  const isResetting = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!resetKey) return;
+    isResetting.current = true;
+    mapViewRef.current?.animateCamera(INITIAL_CAMERA, { duration: 600 });
+    const timer = setTimeout(() => {
+      isResetting.current = false;
+    }, 900);
+    return () => clearTimeout(timer);
+  }, [resetKey]);
+
+  const handleRegionChangeComplete = React.useCallback(
+    (region: Region) => {
+      if (isResetting.current) return;
+      const latDiff = Math.abs(region.latitude - GENEVA_LAKE_COORDS.latitude);
+      const lngDiff = Math.abs(region.longitude - GENEVA_LAKE_COORDS.longitude);
+      onMapMoved?.(
+        latDiff > POSITION_THRESHOLD || lngDiff > POSITION_THRESHOLD,
+      );
+    },
+    [onMapMoved],
+  );
+
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapViewRef}
         initialCamera={INITIAL_CAMERA}
         style={styles.map}
         provider={PROVIDER_GOOGLE}
+        onRegionChangeComplete={handleRegionChangeComplete}
       >
         {events.map((event) => (
           <Marker

@@ -5,6 +5,8 @@ type PlatformMapFallbackProps = {
   activeEventId?: string | null;
   events?: unknown[];
   onEventPress?: (eventId: string) => void;
+  onMapMoved?: (moved: boolean) => void;
+  resetKey?: number;
 };
 
 export default function PlatformMapFallback(_props: PlatformMapFallbackProps) {
