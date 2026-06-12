@@ -16,13 +16,13 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
-3. Configure Google Maps API key
+3. Configure API keys
 
    ```bash
    cp .env.example .env
    ```
 
-   Set `GOOGLE_MAPS_API_KEY` (or `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`) in `.env`.
+   Set `GOOGLE_MAPS_API_KEY` (or `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`) and `TOMTOM_TRAFFIC_API_KEY` in `.env`.
 
 In the output, you'll find options to open the app in a
 

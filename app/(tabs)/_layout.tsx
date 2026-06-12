@@ -1,3 +1,5 @@
+//layout for the tabs, defines the layout of the tabs and the icons for each tab
+
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
 import React from "react";

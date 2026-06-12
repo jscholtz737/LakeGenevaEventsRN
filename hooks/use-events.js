@@ -1,3 +1,5 @@
+//uses event-mappers and events-service to subscribe to events and return the events, loading state, and error state
+
 import React from "react";
 import { subscribeToEvents } from "../services/events-service";
 
