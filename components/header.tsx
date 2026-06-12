@@ -18,6 +18,11 @@ type WeatherState = {
   tempF: number;
 };
 
+type TrafficState = {
+  value: string;
+  isSuccess: boolean;
+};
+
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = [
   "Jan",
@@ -48,6 +53,8 @@ function startOfDay(date: Date) {
 }
 
 const WEATHER_API_KEY = Constants.expoConfig?.extra?.weatherApiKey;
+const TOMTOM_TRAFFIC_API_KEY = Constants.expoConfig?.extra?.tomtomTrafficApiKey;
+const TOMTOM_TRAFFIC_POINT = "42.59172,-88.43320";
 
 const WEATHER_ICON_ASSETS: Record<string, { day: number; night: number }> = {
   "113": {
@@ -259,6 +266,10 @@ export default function Header({ onDateChange }: HeaderProps) {
     startOfDay(new Date()),
   );
   const [weather, setWeather] = React.useState<WeatherState | null>(null);
+  const [traffic, setTraffic] = React.useState<TrafficState>({
+    value: "X",
+    isSuccess: false,
+  });
 
   const selectDate = (date: Date) => {
     const normalizedDate = startOfDay(date);
@@ -305,6 +316,64 @@ export default function Header({ onDateChange }: HeaderProps) {
     };
 
     void loadWeather();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!TOMTOM_TRAFFIC_API_KEY) {
+      setTraffic({ value: "X", isSuccess: false });
+      return;
+    }
+
+    let isCancelled = false;
+
+    const loadTraffic = async () => {
+      try {
+        const response = await fetch(
+          `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?key=${TOMTOM_TRAFFIC_API_KEY}&point=${TOMTOM_TRAFFIC_POINT}`,
+        );
+
+        if (!response.ok) {
+          if (!isCancelled) {
+            setTraffic({ value: "X", isSuccess: false });
+          }
+          return;
+        }
+
+        const payload = await response.json();
+        const currentTravelTime =
+          payload?.flowSegmentData?.currentTravelTime ?? null;
+        const freeFlowTravelTime =
+          payload?.flowSegmentData?.freeFlowTravelTime ?? null;
+
+        if (
+          typeof currentTravelTime !== "number" ||
+          typeof freeFlowTravelTime !== "number" ||
+          currentTravelTime <= 0
+        ) {
+          if (!isCancelled) {
+            setTraffic({ value: "X", isSuccess: false });
+          }
+          return;
+        }
+
+        const ratio = (freeFlowTravelTime / currentTravelTime).toFixed(1);
+
+        if (!isCancelled) {
+          setTraffic({ value: ratio, isSuccess: true });
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          setTraffic({ value: "X", isSuccess: false });
+        }
+        console.warn("Unable to load traffic", error);
+      }
+    };
+
+    void loadTraffic();
 
     return () => {
       isCancelled = true;
@@ -364,7 +433,16 @@ export default function Header({ onDateChange }: HeaderProps) {
           </Text>
           <Text style={styles.caret}>▾</Text>
         </Pressable>
-        <View style={styles.sideSpace} />
+        <View style={styles.sideSpace}>
+          <Text
+            style={[
+              styles.trafficValue,
+              traffic.isSuccess ? styles.trafficSuccess : styles.trafficError,
+            ]}
+          >
+            {traffic.value}
+          </Text>
+        </View>
         {Platform.OS === "ios" && isIOSPickerOpen ? (
           <View style={styles.pickerPanel}>
             <DateTimePicker
@@ -438,6 +516,16 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "600",
     marginTop: -2,
+  },
+  trafficValue: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  trafficSuccess: {
+    color: "#0B8F39",
+  },
+  trafficError: {
+    color: "#B42318",
   },
   pickerPanel: {
     backgroundColor: "#ffffff",
