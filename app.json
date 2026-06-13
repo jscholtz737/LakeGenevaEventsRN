@@ -10,12 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "joe.LGTv2",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "bundleIdentifier": "joe.LGTv2"
     },
     "android": {
       "package": "com.josephscholtz.lakegenevaeventsrn",
-      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "",

@@ -1,5 +1,3 @@
-const { expo } = require("./app.json");
-
 const googleMapsApiKey =
   process.env.GOOGLE_MAPS_API_KEY ||
   process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -10,30 +8,35 @@ if (googleMapsApiKey && !process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY) {
   process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY = googleMapsApiKey;
 }
 
-module.exports = {
-  ...expo,
-  plugins: [...(expo.plugins || []), "@react-native-community/datetimepicker"],
+module.exports = ({ config }) => ({
+  ...config,
+  plugins: [
+    ...(config.plugins || []),
+    "@react-native-community/datetimepicker",
+    "expo-font",
+    "expo-web-browser",
+  ],
   extra: {
-    ...(expo.extra || {}),
+    ...(config.extra || {}),
     googleMapsApiKey,
     weatherApiKey,
     tomtomTrafficApiKey,
   },
   ios: {
-    ...expo.ios,
+    ...config.ios,
     config: {
-      ...(expo.ios?.config || {}),
+      ...(config.ios?.config || {}),
       ...(googleMapsApiKey ? { googleMapsApiKey } : {}),
     },
   },
   android: {
-    ...expo.android,
+    ...config.android,
     config: {
-      ...(expo.android?.config || {}),
+      ...(config.android?.config || {}),
       googleMaps: {
-        ...(expo.android?.config?.googleMaps || {}),
+        ...(config.android?.config?.googleMaps || {}),
         ...(googleMapsApiKey ? { apiKey: googleMapsApiKey } : {}),
       },
     },
   },
-};
+});
