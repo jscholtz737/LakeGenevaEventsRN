@@ -12,20 +12,13 @@ import {
   formatTemperature,
   useWeather,
 } from "../services/weather-api";
+import TrafficGauge from "./traffic-gauge";
 
 type HeaderProps = {
   onDateChange?: (date: Date) => void;
 };
 
-const WEEKDAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = [
   "Jan",
   "Feb",
@@ -130,15 +123,17 @@ export default function Header({ onDateChange }: HeaderProps) {
               </View>
             ) : null}
           </View>
+          <View style={styles.conditionsContainer}>
+            <Text style={styles.conditionsLabel}>{"Current\nConditions"}</Text>
+          </View>
           <View style={styles.sideSpace}>
-            <Text
-              style={[
-                styles.trafficValue,
-                traffic.isSuccess ? styles.trafficSuccess : styles.trafficError,
-              ]}
-            >
-              {traffic.value}
-            </Text>
+            <View style={styles.gaugeContainer}>
+              <TrafficGauge
+                value={traffic.value}
+                isSuccess={traffic.isSuccess}
+              />
+              <Text style={styles.gaugeLabel}>Congestion</Text>
+            </View>
           </View>
         </View>
         {Platform.OS === "ios" && isIOSPickerOpen ? (
@@ -158,8 +153,6 @@ export default function Header({ onDateChange }: HeaderProps) {
 }
 
 const NAV_BAR_HEIGHT = 56;
-const CENTER_GUTTER = 20;
-
 const styles = StyleSheet.create({
   safeArea: {
     backgroundColor: "#ffffff",
@@ -178,31 +171,32 @@ const styles = StyleSheet.create({
   },
   leftContainer: {
     alignItems: "flex-start",
-    flex: 1,
     flexDirection: "row",
     justifyContent: "flex-start",
-    paddingRight: CENTER_GUTTER,
+    paddingRight: 8,
   },
   rightContainer: {
     alignItems: "center",
     flex: 1,
     flexDirection: "row",
-    justifyContent: "flex-end",
-    paddingLeft: CENTER_GUTTER,
+    justifyContent: "flex-start",
+    paddingLeft: 12,
   },
   sideSpace: {
     alignItems: "center",
     justifyContent: "center",
     minWidth: 56,
   },
+  conditionsContainer: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+  },
   divider: {
     backgroundColor: "#000000",
     height: 32,
-    left: "50%",
-    marginLeft: -0.5,
-    position: "absolute",
-    top: 12,
-    width: 1,
+    marginRight: 12,
+    width: 2,
   },
   dropdownTrigger: {
     alignItems: "center",
@@ -221,13 +215,13 @@ const styles = StyleSheet.create({
   },
   dayName: {
     color: "#10243A",
-    fontSize: 20,
+    fontSize: 26,
     fontWeight: "600",
     letterSpacing: 0.2,
   },
   monthDay: {
     color: "#10243A",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
     letterSpacing: 0.2,
   },
@@ -248,24 +242,34 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   weatherIcon: {
-    height: 36,
-    width: 36,
+    height: 40,
+    width: 40,
   },
   weatherTemp: {
     color: "#10243A",
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "600",
-    marginTop: -8,
+    marginTop: -3,
   },
-  trafficValue: {
-    fontSize: 20,
-    fontWeight: "700",
+  conditionsLabel: {
+    color: "#10243A",
+    fontSize: 13,
+    fontStyle: "italic",
+    fontWeight: "600",
+    lineHeight: 12,
+    textAlign: "center",
   },
-  trafficSuccess: {
-    color: "#0B8F39",
+  gaugeContainer: {
+    alignItems: "center",
+    justifyContent: "center",
   },
-  trafficError: {
-    color: "#B42318",
+  gaugeLabel: {
+    color: "#10243A",
+    fontSize: 13,
+    fontWeight: "600",
+    lineHeight: 12,
+    marginTop: -2,
+    textAlign: "center",
   },
   pickerPanel: {
     backgroundColor: "#ffffff",

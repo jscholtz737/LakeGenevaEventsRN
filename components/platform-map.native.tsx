@@ -73,26 +73,28 @@ export default function PlatformMapNative({
         provider={PROVIDER_GOOGLE}
         onRegionChangeComplete={handleRegionChangeComplete}
       >
-        {events.map((event) => (
-          <Marker
-            coordinate={{
-              latitude: event.latitude,
-              longitude: event.longitude,
-            }}
-            description={event.location}
-            key={
-              Platform.OS === "android"
-                ? `${event.id}-${event.id === activeEventId ? "active" : "inactive"}`
-                : event.id
-            }
-            pinColor={event.id === activeEventId ? "#FF0000" : "#000099"}
-            title={event.name}
-            tracksViewChanges={
-              Platform.OS === "android" && event.id === activeEventId
-            }
-            onPress={() => onEventPress?.(event.id)}
-          />
-        ))}
+        {events.map((event) => {
+          const isActive = event.id === activeEventId;
+
+          return (
+            <Marker
+              coordinate={{
+                latitude: event.latitude,
+                longitude: event.longitude,
+              }}
+              description={event.location}
+              key={
+                Platform.OS === "android"
+                  ? `${event.id}-${isActive ? "active" : "inactive"}`
+                  : event.id
+              }
+              pinColor={isActive ? "#FF0000" : "#000099"}
+              title={event.name}
+              tracksViewChanges={Platform.OS === "android" && isActive}
+              onPress={() => onEventPress?.(event.id)}
+            />
+          );
+        })}
       </MapView>
     </View>
   );
