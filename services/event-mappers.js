@@ -32,6 +32,10 @@ function isDailyRecurring(value) {
   return typeof value === "string" && value.trim().toLowerCase() === "daily";
 }
 
+function isWeeklyRecurring(value) {
+  return typeof value === "string" && value.trim().toLowerCase() === "weekly";
+}
+
 export function formatEventTime(value) {
   if (!value) {
     return "TBD";
@@ -86,8 +90,11 @@ export function mapEventDoc(doc) {
 
 export function expandDailyRecurringEvents(events) {
   return events.flatMap((event) => {
+    const shouldExpandDaily = isDailyRecurring(event.recurring);
+    const shouldExpandWeekly = isWeeklyRecurring(event.recurring);
+
     if (
-      !isDailyRecurring(event.recurring) ||
+      (!shouldExpandDaily && !shouldExpandWeekly) ||
       !event.startDate ||
       !event.endDate
     ) {
@@ -95,7 +102,8 @@ export function expandDailyRecurringEvents(events) {
     }
 
     const copies = [event];
-    let dayOffset = 1;
+    const incrementDays = shouldExpandWeekly ? 7 : 1;
+    let dayOffset = incrementDays;
     let nextDate = addDays(event.startDate, dayOffset);
 
     while (nextDate <= event.endDate) {
@@ -105,7 +113,7 @@ export function expandDailyRecurringEvents(events) {
         startDate: nextDate,
       });
 
-      dayOffset += 1;
+      dayOffset += incrementDays;
       nextDate = addDays(event.startDate, dayOffset);
     }
 

@@ -47,6 +47,8 @@ function startOfDay(date: Date) {
   return normalizedDate;
 }
 
+const MINIMUM_DATE = startOfDay(new Date());
+
 export default function Header({ onDateChange }: HeaderProps) {
   const [isIOSPickerOpen, setIsIOSPickerOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(() =>
@@ -70,6 +72,7 @@ export default function Header({ onDateChange }: HeaderProps) {
     if (Platform.OS === "android") {
       DateTimePickerAndroid.open({
         mode: "date",
+        minimumDate: MINIMUM_DATE,
         value: selectedDate,
         onChange: (event: DateTimePickerEvent, date?: Date) => {
           if (event.type === "set" && date) {
@@ -140,6 +143,7 @@ export default function Header({ onDateChange }: HeaderProps) {
           <View style={styles.pickerPanel}>
             <DateTimePicker
               mode="date"
+              minimumDate={MINIMUM_DATE}
               value={selectedDate}
               display="inline"
               themeVariant="light"

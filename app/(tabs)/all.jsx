@@ -20,6 +20,12 @@ function dateSortValue(value) {
   return value.getTime();
 }
 
+function startOfDay(date) {
+  const normalizedDate = new Date(date);
+  normalizedDate.setHours(0, 0, 0, 0);
+  return normalizedDate;
+}
+
 function dateKey(value) {
   if (!(value instanceof Date)) {
     return "date-tbd";
@@ -111,7 +117,18 @@ function buildSectionRows(events) {
 export default function AllTab() {
   const { events, isLoading, error } = useEvents();
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const sectionRows = useMemo(() => buildSectionRows(events), [events]);
+  const sectionRows = useMemo(() => {
+    const today = startOfDay(new Date());
+    const upcomingEvents = events.filter((event) => {
+      if (!(event.startDate instanceof Date)) {
+        return true;
+      }
+
+      return startOfDay(event.startDate) >= today;
+    });
+
+    return buildSectionRows(upcomingEvents);
+  }, [events]);
   const stickyHeaderIndices = useMemo(
     () =>
       sectionRows
@@ -202,6 +219,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F4F7FB",
   },
   listContent: {
+    paddingTop: 20,
     paddingBottom: 8,
   },
   dateHeader: {
@@ -211,10 +229,9 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     fontWeight: "700",
     marginBottom: 0,
-    marginHorizontal: 16,
-    marginTop: 20,
+    paddingHorizontal: 16,
     paddingBottom: 6,
-    paddingTop: 12,
+    paddingTop: 25,
   },
   stateContainer: {
     alignItems: "center",
