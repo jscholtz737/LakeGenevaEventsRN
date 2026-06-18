@@ -1,13 +1,15 @@
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import EventCard from "../../components/event-card";
+import EventDetailsSheet from "../../components/event-details-sheet";
 import { useEvents } from "../../hooks/use-events";
 
 function dateSortValue(value) {
@@ -108,6 +110,7 @@ function buildSectionRows(events) {
 
 export default function AllTab() {
   const { events, isLoading, error } = useEvents();
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const sectionRows = useMemo(() => buildSectionRows(events), [events]);
   const stickyHeaderIndices = useMemo(
     () =>
@@ -116,6 +119,14 @@ export default function AllTab() {
         .filter((index) => index >= 0),
     [sectionRows],
   );
+
+  const handleEventCardPress = useCallback((event) => {
+    setSelectedEvent(event);
+  }, []);
+
+  const handleCloseSheet = useCallback(() => {
+    setSelectedEvent(null);
+  }, []);
 
   if (isLoading) {
     return (
@@ -153,21 +164,33 @@ export default function AllTab() {
           }
 
           return (
-            <EventCard
-              title={item.event.name}
-              location={item.event.location}
-              time={item.event.time}
-              imageUri={item.event.imageUri}
-              style={
-                item.hasMultipleEventsOnDate
-                  ? { marginTop: item.eventIndexInGroup === 0 ? 5 : 2 }
-                  : null
-              }
-            />
+            <Pressable onPress={() => handleEventCardPress(item.event)}>
+              <EventCard
+                title={item.event.name}
+                location={item.event.location}
+                time={item.event.time}
+                imageUri={item.event.imageUri}
+                style={
+                  item.hasMultipleEventsOnDate
+                    ? { marginTop: item.eventIndexInGroup === 0 ? 5 : 2 }
+                    : null
+                }
+              />
+            </Pressable>
           );
         }}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
+      />
+      <EventDetailsSheet
+        onClose={handleCloseSheet}
+        description={selectedEvent?.description}
+        imageUri={selectedEvent?.imageUri}
+        locationDetails={selectedEvent?.locationDetails}
+        startDate={selectedEvent?.startDate}
+        time={selectedEvent?.time}
+        title={selectedEvent?.name ?? ""}
+        visible={selectedEvent !== null}
       />
     </SafeAreaView>
   );

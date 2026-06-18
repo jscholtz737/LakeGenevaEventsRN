@@ -3,21 +3,25 @@ import React from "react";
 import {
   Dimensions,
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import EventCard from "../../components/event-card";
+import EventDetailsSheet from "../../components/event-details-sheet";
 import Header from "../../components/header";
 import PlatformMap from "../../components/platform-map";
 import { useEvents } from "../../hooks/use-events";
 
 type EventMapItem = {
+  description: string;
   id: string;
   imageUri: string;
   latitude: number | null;
   location: string;
+  locationDetails: string;
   longitude: number | null;
   name: string;
   startDate: Date | null;
@@ -46,6 +50,9 @@ export default function MapScreen() {
     startOfDay(new Date()),
   );
   const [activeEventId, setActiveEventId] = React.useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = React.useState<EventMapItem | null>(
+    null,
+  );
   const [isMapMoved, setIsMapMoved] = React.useState(false);
   const [resetKey, setResetKey] = React.useState(0);
   const flatListRef = React.useRef<FlatList<EventMapItem>>(null);
@@ -87,6 +94,18 @@ export default function MapScreen() {
 
   const handleMapMoved = React.useCallback((moved: boolean) => {
     setIsMapMoved(moved);
+  }, []);
+
+  const handleCarouselCardPress = React.useCallback(
+    (event: EventMapItem) => {
+      handleEventPress(event.id);
+      setSelectedEvent(event);
+    },
+    [handleEventPress],
+  );
+
+  const handleCloseSheet = React.useCallback(() => {
+    setSelectedEvent(null);
   }, []);
 
   const handleResetMap = React.useCallback(() => {
@@ -133,19 +152,31 @@ export default function MapScreen() {
             snapToAlignment="start"
             snapToInterval={snapInterval}
             renderItem={({ item }) => (
-              <EventCard
-                title={item.name}
-                location={item.location}
-                time={item.time}
-                imageUri={item.imageUri}
-                style={[styles.mapEventCard, { width: cardWidth }]}
-              />
+              <Pressable onPress={() => handleCarouselCardPress(item)}>
+                <EventCard
+                  title={item.name}
+                  location={item.location}
+                  time={item.time}
+                  imageUri={item.imageUri}
+                  style={[styles.mapEventCard, { width: cardWidth }]}
+                />
+              </Pressable>
             )}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.carouselContent}
           />
         </View>
       )}
+      <EventDetailsSheet
+        onClose={handleCloseSheet}
+        description={selectedEvent?.description}
+        imageUri={selectedEvent?.imageUri}
+        locationDetails={selectedEvent?.locationDetails}
+        startDate={selectedEvent?.startDate}
+        time={selectedEvent?.time}
+        title={selectedEvent?.name ?? ""}
+        visible={selectedEvent !== null}
+      />
     </View>
   );
 }
