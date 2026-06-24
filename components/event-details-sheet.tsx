@@ -1,16 +1,16 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React from "react";
 import {
-    Animated,
-    Image,
-    Modal,
-    PanResponder,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    useWindowDimensions,
-    View,
+  Animated,
+  Image,
+  Modal,
+  PanResponder,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -232,17 +232,26 @@ export default function EventDetailsSheet({
               <Text style={styles.locationText}>{locationDetails}</Text>
             </View>
           ) : null}
+          {locationDetails && formattedStartDate ? (
+            <View style={styles.divider} />
+          ) : null}
           {formattedStartDate ? (
             <View style={styles.locationRow}>
               <Ionicons name="calendar-outline" size={24} color="#0B8F39" />
               <Text style={styles.locationText}>{formattedStartDate}</Text>
             </View>
           ) : null}
+          {formattedStartDate && formattedTime ? (
+            <View style={styles.divider} />
+          ) : null}
           {formattedTime ? (
             <View style={styles.locationRow}>
               <Ionicons name="time-outline" size={24} color="#0B8F39" />
               <Text style={styles.locationText}>{formattedTime}</Text>
             </View>
+          ) : null}
+          {formattedTime && safeDescription ? (
+            <View style={styles.divider} />
           ) : null}
           {safeDescription ? (
             <View style={styles.locationRow}>
@@ -315,5 +324,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 20,
     textAlign: "left",
+  },
+  divider: {
+    alignSelf: "center",
+    backgroundColor: "#DCE4EC",
+    height: 1,
+    marginTop: 14,
+    width: "75%",
   },
 });

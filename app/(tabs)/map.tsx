@@ -114,8 +114,12 @@ export default function MapScreen() {
   }, []);
 
   React.useEffect(() => {
-    if (mapEvents.length > 0 && !activeEventId) {
+    if (
+      mapEvents.length > 0 &&
+      !mapEvents.some((e) => e.id === activeEventId)
+    ) {
       setActiveEventId(mapEvents[0].id);
+      flatListRef.current?.scrollToIndex({ animated: false, index: 0 });
     }
   }, [mapEvents, activeEventId]);
 

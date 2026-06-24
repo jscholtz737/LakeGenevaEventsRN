@@ -1,5 +1,6 @@
 import Constants from "expo-constants";
 import React from "react";
+import { AppState } from "react-native";
 
 /**
  * @typedef {Object} WeatherState
@@ -222,50 +223,54 @@ export function useWeather() {
   /** @type {[WeatherState | null, React.Dispatch<React.SetStateAction<WeatherState | null>>]} */
   const [weather, setWeather] = React.useState(null);
 
-  React.useEffect(() => {
+  const loadWeather = React.useCallback(async () => {
     if (!WEATHER_API_KEY) {
       return;
     }
 
-    let isCancelled = false;
+    try {
+      const response = await fetch(
+        `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=53147&aqi=no`,
+      );
 
-    const loadWeather = async () => {
-      try {
-        const response = await fetch(
-          `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=53147&aqi=no`,
+      if (!response.ok) {
+        throw new Error(
+          `Weather request failed with status ${response.status}`,
         );
-
-        if (!response.ok) {
-          throw new Error(
-            `Weather request failed with status ${response.status}`,
-          );
-        }
-
-        const payload = await response.json();
-        const iconCode = extractIconCode(
-          payload.current?.condition?.icon ?? "",
-        );
-
-        if (!iconCode || !WEATHER_ICON_ASSETS[iconCode] || isCancelled) {
-          return;
-        }
-
-        setWeather({
-          iconCode,
-          isDay: payload.current?.is_day === 1,
-          tempF: payload.current?.temp_f,
-        });
-      } catch (error) {
-        console.warn("Unable to load weather", error);
       }
-    };
 
+      const payload = await response.json();
+      const iconCode = extractIconCode(payload.current?.condition?.icon ?? "");
+
+      if (!iconCode || !WEATHER_ICON_ASSETS[iconCode]) {
+        return;
+      }
+
+      setWeather({
+        iconCode,
+        isDay: payload.current?.is_day === 1,
+        tempF: payload.current?.temp_f,
+      });
+    } catch (error) {
+      console.warn("Unable to load weather", error);
+    }
+  }, []);
+
+  React.useEffect(() => {
     void loadWeather();
+  }, [loadWeather]);
+
+  React.useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        void loadWeather();
+      }
+    });
 
     return () => {
-      isCancelled = true;
+      subscription.remove();
     };
-  }, []);
+  }, [loadWeather]);
 
   return weather;
 }
