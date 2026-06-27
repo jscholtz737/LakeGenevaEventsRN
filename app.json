@@ -7,9 +7,8 @@
     "icon": "./assets/icon.png",
     "scheme": "lakegenevaeventsrn",
     "userInterfaceStyle": "automatic",
-    //"newArchEnabled": true,
     "ios": {
-      "buildNumber": "8",
+      "buildNumber": "7",
       "supportsTablet": false,
       "bundleIdentifier": "joe.LGTv2",
       "config": {},
@@ -23,7 +22,6 @@
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/icon.png"
       },
-      //"edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
