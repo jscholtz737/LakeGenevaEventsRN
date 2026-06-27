@@ -1,26 +1,29 @@
 {
   "expo": {
-    "name": "LakeGenevaEventsRN",
+    "name": "Events",
     "slug": "LakeGenevaEventsRN",
-    "version": "1.0.0",
+    "version": "4.0.0",
     "orientation": "portrait",
-    "icon": "",
+    "icon": "./assets/icon.png",
     "scheme": "lakegenevaeventsrn",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    //"newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "joe.LGTv2"
+      "buildNumber": "8",
+      "supportsTablet": false,
+      "bundleIdentifier": "joe.LGTv2",
+      "config": {},
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.josephscholtz.lakegenevaeventsrn",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "",
-        "backgroundImage": "",
-        "monochromeImage": ""
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/icon.png"
       },
-      "edgeToEdgeEnabled": true,
+      //"edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -32,8 +35,8 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/splash.png",
+          "imageWidth": 492,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
           "dark": {
@@ -45,6 +48,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3b56a272-1da4-4e98-b59a-9642b6af2c99"
+      }
+    },
+    "owner": "jscholtz"
   }
 }
