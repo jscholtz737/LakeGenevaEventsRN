@@ -8,7 +8,6 @@
     "scheme": "lakegenevaeventsrn",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "buildNumber": "7",
       "supportsTablet": false,
       "bundleIdentifier": "joe.LGTv2",
       "config": {},
