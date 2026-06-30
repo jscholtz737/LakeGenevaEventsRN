@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -12,8 +12,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import EventCard from "../../components/event-card";
 import EventDetailsSheet from "../../components/event-details-sheet";
 import { useEvents } from "../../hooks/use-events";
-
-const SEARCH_DEBOUNCE_MS = 1000;
 
 function normalizeText(value) {
   if (typeof value !== "string") {
@@ -35,7 +33,7 @@ function eventSearchText(event) {
 export default function SearchTab() {
   const { events, isLoading, error } = useEvents();
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   const handleEventCardPress = useCallback((event) => {
@@ -48,25 +46,18 @@ export default function SearchTab() {
 
   const clearSearch = () => {
     setQuery("");
-    setDebouncedQuery("");
+    setSubmittedQuery("");
   };
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
+  const handleSearchSubmit = useCallback(() => {
+    setSubmittedQuery(query);
   }, [query]);
 
-  const hasQuery = normalizeText(query).trim().length > 0;
-  const isDebouncing =
-    normalizeText(query).trim() !== normalizeText(debouncedQuery).trim();
+  const hasTypedQuery = normalizeText(query).trim().length > 0;
+  const hasSubmittedQuery = normalizeText(submittedQuery).trim().length > 0;
 
   const filteredEvents = useMemo(() => {
-    const tokens = normalizeText(debouncedQuery)
+    const tokens = normalizeText(submittedQuery)
       .trim()
       .split(/\s+/)
       .filter(Boolean);
@@ -79,7 +70,7 @@ export default function SearchTab() {
       const haystack = eventSearchText(event);
       return tokens.every((token) => haystack.includes(token));
     });
-  }, [debouncedQuery, events]);
+  }, [submittedQuery, events]);
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
@@ -90,12 +81,14 @@ export default function SearchTab() {
             autoCorrect={false}
             clearButtonMode="never"
             onChangeText={setQuery}
+            onSubmitEditing={handleSearchSubmit}
             placeholder="Search events"
             placeholderTextColor="#6B7D90"
+            returnKeyType="search"
             style={styles.searchInput}
             value={query}
           />
-          {hasQuery ? (
+          {hasTypedQuery ? (
             <Pressable
               accessibilityLabel="Clear search"
               hitSlop={8}
@@ -119,15 +112,13 @@ export default function SearchTab() {
             Unable to load events from database.
           </Text>
         </View>
-      ) : !hasQuery ? (
+      ) : !hasSubmittedQuery ? (
         <View style={styles.stateContainer}>
           <Text style={styles.stateText}>
-            Type in the search bar to find events.
+            {hasTypedQuery
+              ? "Press Enter to search for events."
+              : "Type in the search bar to find events."}
           </Text>
-        </View>
-      ) : isDebouncing ? (
-        <View style={styles.stateContainer}>
-          <Text style={styles.stateText}>Searching...</Text>
         </View>
       ) : !filteredEvents.length ? (
         <View style={styles.stateContainer}>

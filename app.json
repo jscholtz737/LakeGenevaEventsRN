@@ -12,7 +12,8 @@
       "bundleIdentifier": "joe.LGTv2",
       "config": {},
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSLocationWhenInUseUsageDescription": "This app uses maps to display event locations. Your device location is not collected, stored, or tracked by us."
       }
     },
     "android": {
@@ -34,7 +35,7 @@
         {
           "image": "./assets/splash.png",
           "imageWidth": 492,
-          "resizeMode": "contain",
+          "resizeMode": "cover",
           "backgroundColor": "#ffffff",
           "dark": {
             "backgroundColor": "#000000"
