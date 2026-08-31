@@ -266,7 +266,6 @@ export default function EventDetailsSheet({
                 source={{ uri: safeImageUri }}
                 style={styles.eventImage}
                 contentFit="contain"
-                placeholder={{ color: "#31465A" }}
                 transition={200}
                 onLoad={(e) => {
                   const { width: w, height: h } = e.source;
