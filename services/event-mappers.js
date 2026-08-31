@@ -109,8 +109,9 @@ export function expandDailyRecurringEvents(events) {
     const incrementDays = shouldExpandWeekly ? 7 : 1;
     let dayOffset = incrementDays;
     let nextDate = addDays(event.startDate, dayOffset);
+    const expansionCutoff = addDays(new Date(), 45);
 
-    while (nextDate <= event.endDate) {
+    while (nextDate <= event.endDate && nextDate <= expansionCutoff) {
       copies.push({
         ...event,
         id: `${event.id}-${nextDate.toISOString().slice(0, 10)}`,

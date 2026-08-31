@@ -129,14 +129,6 @@ export default function AllTab() {
 
     return buildSectionRows(upcomingEvents);
   }, [events]);
-  const stickyHeaderIndices = useMemo(
-    () =>
-      sectionRows
-        .map((item, index) => (item.type === "header" ? index : -1))
-        .filter((index) => index >= 0),
-    [sectionRows],
-  );
-
   const handleEventCardPress = useCallback((event) => {
     setSelectedEvent(event);
   }, []);
@@ -174,7 +166,6 @@ export default function AllTab() {
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <FlatList
         data={sectionRows}
-        stickyHeaderIndices={stickyHeaderIndices}
         renderItem={({ item }) => {
           if (item.type === "header") {
             return <Text style={styles.dateHeader}>{item.label}</Text>;
@@ -198,6 +189,10 @@ export default function AllTab() {
         }}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        removeClippedSubviews={true}
       />
       <EventDetailsSheet
         onClose={handleCloseSheet}

@@ -48,6 +48,11 @@ function startOfDay(date: Date) {
 }
 
 const MINIMUM_DATE = startOfDay(new Date());
+const MAXIMUM_DATE = (() => {
+  const d = new Date();
+  d.setDate(d.getDate() + 45);
+  return startOfDay(d);
+})();
 
 export default function Header({ onDateChange }: HeaderProps) {
   const [isIOSPickerOpen, setIsIOSPickerOpen] = React.useState(false);
@@ -73,6 +78,7 @@ export default function Header({ onDateChange }: HeaderProps) {
       DateTimePickerAndroid.open({
         mode: "date",
         minimumDate: MINIMUM_DATE,
+        maximumDate: MAXIMUM_DATE,
         value: selectedDate,
         onChange: (event: DateTimePickerEvent, date?: Date) => {
           if (event.type === "set" && date) {
@@ -144,6 +150,7 @@ export default function Header({ onDateChange }: HeaderProps) {
             <DateTimePicker
               mode="date"
               minimumDate={MINIMUM_DATE}
+              maximumDate={MAXIMUM_DATE}
               value={selectedDate}
               display="inline"
               themeVariant="light"

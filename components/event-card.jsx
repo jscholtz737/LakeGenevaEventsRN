@@ -1,4 +1,5 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { StyleSheet, Text, View } from "react-native";
 
 /**
  * @param {{
@@ -43,7 +44,13 @@ export default function EventCard({
 
   return (
     <View style={[styles.card, style]}>
-      <Image source={{ uri: imageUri }} style={styles.eventImage} />
+      <Image
+        source={{ uri: imageUri }}
+        style={styles.eventImage}
+        contentFit="cover"
+        placeholder={{ color: "#31465A" }}
+        transition={200}
+      />
       <View style={styles.infoContainer}>
         <Text
           adjustsFontSizeToFit
