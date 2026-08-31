@@ -65,26 +65,30 @@ function resolveImageUri(imageName) {
   return FALLBACK_IMAGE_URI;
 }
 
-export function mapEventDoc(doc) {
-  const data = doc.data();
-  const startDate = normalizeDate(data.startDate);
-  const endDate = normalizeDate(data.endDate);
+function field(row, camelCaseName, snakeCaseName) {
+  return row[snakeCaseName] ?? row[camelCaseName];
+}
+
+export function mapEventRow(row) {
+  const startDate = normalizeDate(field(row, "startDate", "start_date"));
+  const endDate = normalizeDate(field(row, "endDate", "end_date"));
+  const imageName = field(row, "imageName", "image_name") ?? "";
 
   return {
-    id: doc.id,
-    description: data.description ?? "",
+    id: String(row.id),
+    description: row.description ?? "",
     endDate,
-    imageName: data.imageName ?? "",
-    imageUri: resolveImageUri(data.imageName),
-    latitude: typeof data.latitude === "number" ? data.latitude : null,
-    link: data.link ?? "",
-    location: data.location ?? "Location TBD",
-    locationDetails: data.locationDetails ?? "",
-    longitude: typeof data.longitude === "number" ? data.longitude : null,
-    name: data.name ?? "Untitled Event",
-    recurring: data.recurring ?? "",
+    imageName,
+    imageUri: resolveImageUri(imageName),
+    latitude: typeof row.latitude === "number" ? row.latitude : null,
+    link: row.link ?? "",
+    location: row.location ?? "Location TBD",
+    locationDetails: field(row, "locationDetails", "location_details") ?? "",
+    longitude: typeof row.longitude === "number" ? row.longitude : null,
+    name: row.name ?? "Untitled Event",
+    recurring: row.recurring ?? "",
     startDate,
-    time: formatEventTime(data.time),
+    time: formatEventTime(row.time),
   };
 }
 

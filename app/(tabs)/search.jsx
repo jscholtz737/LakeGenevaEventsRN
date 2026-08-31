@@ -146,6 +146,7 @@ export default function SearchTab() {
         onClose={handleCloseSheet}
         description={selectedEvent?.description}
         imageUri={selectedEvent?.imageUri}
+        link={selectedEvent?.link}
         locationDetails={selectedEvent?.locationDetails}
         startDate={selectedEvent?.startDate}
         time={selectedEvent?.time}

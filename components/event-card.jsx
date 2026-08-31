@@ -1,6 +1,46 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 
-export default function EventCard({ title, location, time, imageUri, style }) {
+/**
+ * @param {{
+ *   title?: string,
+ *   location?: string,
+ *   time?: string,
+ *   imageUri?: string,
+ *   style?: import("react-native").StyleProp<import("react-native").ViewStyle>,
+ *   emptyMessage?: string,
+ *   emptySubmessage?: string,
+ * }} props
+ */
+export default function EventCard({
+  title,
+  location,
+  time,
+  imageUri,
+  style,
+  emptyMessage,
+  emptySubmessage,
+}) {
+  if (emptyMessage) {
+    return (
+      <View style={[styles.card, styles.emptyCard, style]}>
+        <Text
+          adjustsFontSizeToFit
+          maxFontSizeMultiplier={1}
+          minimumFontScale={0.7}
+          numberOfLines={1}
+          style={styles.emptyMessage}
+        >
+          {emptyMessage}
+        </Text>
+        {emptySubmessage ? (
+          <Text style={[styles.location, styles.emptySubmessage]}>
+            {emptySubmessage}
+          </Text>
+        ) : null}
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.card, style]}>
       <Image source={{ uri: imageUri }} style={styles.eventImage} />
@@ -39,8 +79,24 @@ const styles = StyleSheet.create({
   },
   eventImage: {
     aspectRatio: 1,
+    backgroundColor: "#31465A",
     borderRadius: 10,
     width: "25%",
+  },
+  emptyCard: {
+    flexDirection: "column",
+    justifyContent: "center",
+    minHeight: 92,
+  },
+  emptyMessage: {
+    color: "#10243A",
+    fontSize: 18,
+    fontWeight: "700",
+    fontStyle: "italic",
+    textAlign: "center",
+  },
+  emptySubmessage: {
+    textAlign: "center",
   },
   infoContainer: {
     flex: 1,

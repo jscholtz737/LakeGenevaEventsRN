@@ -3,6 +3,8 @@ import React from "react";
 import {
   Animated,
   Image,
+  type LayoutChangeEvent,
+  Linking,
   Modal,
   PanResponder,
   Platform,
@@ -17,6 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 type EventDetailsSheetProps = {
   description?: string;
   imageUri?: string;
+  link?: string;
   locationDetails?: string;
   onClose: () => void;
   startDate?: Date | string | number | null;
@@ -119,6 +122,7 @@ function formatDisplayTime(value: Date | string | number | null | undefined) {
 export default function EventDetailsSheet({
   description,
   imageUri,
+  link,
   locationDetails,
   onClose,
   startDate,
@@ -126,12 +130,15 @@ export default function EventDetailsSheet({
   title,
   visible,
 }: EventDetailsSheetProps) {
-  const { height } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const [imageAspectRatio, setImageAspectRatio] = React.useState(1);
+  const [detailsHeight, setDetailsHeight] = React.useState(0);
   const topBuffer =
     Platform.OS === "android"
       ? Math.max(72, insets.top + 28)
       : Math.max(56, insets.top + 12);
+  const sheetHeight = height - topBuffer;
   const translateY = React.useRef(new Animated.Value(0)).current;
   const formattedStartDate = formatDisplayDate(startDate);
   const formattedTime = formatDisplayTime(time);
@@ -143,6 +150,53 @@ export default function EventDetailsSheet({
     typeof imageUri === "string" && imageUri.trim().length > 0
       ? imageUri
       : null;
+  const safeLink =
+    typeof link === "string" && link.trim().length > 0 ? link.trim() : null;
+  const maximumImageWidth = width * 0.7;
+  const nonImageVerticalSpace = 118;
+  const availableImageHeight = Math.max(
+    0,
+    sheetHeight - detailsHeight - nonImageVerticalSpace,
+  );
+  const maximumImageHeight = Math.min(
+    sheetHeight * 0.3,
+    availableImageHeight,
+  );
+  const displayedImageWidth = Math.min(
+    maximumImageWidth,
+    maximumImageHeight * imageAspectRatio,
+  );
+  const displayedImageHeight = displayedImageWidth / imageAspectRatio;
+
+  const openEventLink = React.useCallback(() => {
+    if (safeLink) void Linking.openURL(safeLink);
+  }, [safeLink]);
+
+  const handleDetailsLayout = React.useCallback(
+    (event: LayoutChangeEvent) => {
+      const nextHeight = Math.ceil(event.nativeEvent.layout.height);
+      setDetailsHeight((currentHeight) =>
+        currentHeight === nextHeight ? currentHeight : nextHeight,
+      );
+    },
+    [],
+  );
+
+  React.useEffect(() => {
+    setImageAspectRatio(1);
+
+    if (!safeImageUri) return;
+
+    Image.getSize(
+      safeImageUri,
+      (width, imageHeight) => {
+        if (width > 0 && imageHeight > 0) {
+          setImageAspectRatio(width / imageHeight);
+        }
+      },
+      () => {},
+    );
+  }, [safeImageUri]);
 
   const resetPosition = React.useCallback(() => {
     translateY.stopAnimation();
@@ -208,7 +262,7 @@ export default function EventDetailsSheet({
           style={[
             styles.sheet,
             {
-              height: height - topBuffer,
+              height: sheetHeight,
               marginTop: topBuffer,
               transform: [{ translateY }],
             },
@@ -217,7 +271,15 @@ export default function EventDetailsSheet({
         >
           <View style={styles.grabber} />
           {safeImageUri ? (
-            <View style={styles.eventImageFrame}>
+            <View
+              style={[
+                styles.eventImageFrame,
+                {
+                  height: displayedImageHeight,
+                  width: displayedImageWidth,
+                },
+              ]}
+            >
               <Image
                 source={{ uri: safeImageUri }}
                 style={styles.eventImage}
@@ -225,7 +287,8 @@ export default function EventDetailsSheet({
               />
             </View>
           ) : null}
-          <Text style={styles.title}>{title}</Text>
+          <View onLayout={handleDetailsLayout} style={styles.details}>
+            <Text style={styles.title}>{title}</Text>
           {locationDetails ? (
             <View style={styles.locationRow}>
               <Ionicons name="location-outline" size={24} color="#0B8F39" />
@@ -259,6 +322,24 @@ export default function EventDetailsSheet({
               <Text style={styles.locationText}>{safeDescription}</Text>
             </View>
           ) : null}
+          {safeDescription && safeLink ? (
+            <View style={styles.divider} />
+          ) : null}
+          {safeLink ? (
+            <View style={styles.locationRow}>
+              <Ionicons name="open-outline" size={24} color="#0B8F39" />
+              <Pressable
+                accessibilityRole="link"
+                onPress={openEventLink}
+                style={styles.linkPressable}
+              >
+                <Text style={[styles.locationText, styles.linkText]}>
+                  More information
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
+          </View>
         </Animated.View>
       </View>
     </Modal>
@@ -292,18 +373,22 @@ const styles = StyleSheet.create({
   },
   eventImageFrame: {
     alignSelf: "center",
-    width: "70%",
-    aspectRatio: 1,
+    backgroundColor: "#31465A",
     borderRadius: 20,
-    overflow: "hidden",
+    elevation: 4,
     marginBottom: 50,
-    backgroundColor: "#F3F6F9",
-    borderWidth: 1,
-    borderColor: "#DCE4EC",
+    shadowColor: "#10243A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.16,
+    shadowRadius: 8,
   },
   eventImage: {
+    borderRadius: 20,
     width: "100%",
     height: "100%",
+  },
+  details: {
+    alignSelf: "stretch",
   },
   title: {
     color: "#10243A",
@@ -324,6 +409,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 20,
     textAlign: "left",
+  },
+  linkPressable: {
+    flexShrink: 1,
+  },
+  linkText: {
+    textDecorationLine: "underline",
   },
   divider: {
     alignSelf: "center",

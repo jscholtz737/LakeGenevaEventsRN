@@ -22,7 +22,13 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    cp .env.example .env
    ```
 
-   Set `GOOGLE_MAPS_API_KEY` (or `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`) and `TOMTOM_TRAFFIC_API_KEY` in `.env`.
+   Set `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
+   `GOOGLE_MAPS_API_KEY` (or `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`), and
+   `TOMTOM_TRAFFIC_API_KEY` in `.env`.
+
+   The app reads from the public `events` table. Its `anon` role needs a `SELECT`
+   policy, and the table must be added to the `supabase_realtime` publication for
+   live updates.
 
 In the output, you'll find options to open the app in a
 

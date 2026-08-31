@@ -20,6 +20,7 @@ type EventMapItem = {
   id: string;
   imageUri: string;
   latitude: number | null;
+  link: string;
   location: string;
   locationDetails: string;
   longitude: number | null;
@@ -135,16 +136,13 @@ export default function MapScreen() {
           resetKey={resetKey}
         />
       </View>
-      {!!mapEvents.length && (
-        <View style={[styles.carouselContainer, { bottom: tabBarHeight - 50 }]}>
-          {isMapMoved && (
-            <TouchableOpacity
-              onPress={handleResetMap}
-              style={styles.resetButton}
-            >
-              <Text style={styles.resetButtonText}>Reset Map</Text>
-            </TouchableOpacity>
-          )}
+      <View style={[styles.carouselContainer, { bottom: tabBarHeight - 50 }]}>
+        {isMapMoved && (
+          <TouchableOpacity onPress={handleResetMap} style={styles.resetButton}>
+            <Text style={styles.resetButtonText}>Reset Map</Text>
+          </TouchableOpacity>
+        )}
+        {mapEvents.length ? (
           <FlatList
             ref={flatListRef}
             data={mapEvents}
@@ -169,12 +167,19 @@ export default function MapScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.carouselContent}
           />
-        </View>
-      )}
+        ) : (
+          <EventCard
+            emptyMessage="No events scheduled for this day!"
+            emptySubmessage="Select a different day to see upcoming events"
+            style={[styles.emptyEventCard, { width: cardWidth }]}
+          />
+        )}
+      </View>
       <EventDetailsSheet
         onClose={handleCloseSheet}
         description={selectedEvent?.description}
         imageUri={selectedEvent?.imageUri}
+        link={selectedEvent?.link}
         locationDetails={selectedEvent?.locationDetails}
         startDate={selectedEvent?.startDate}
         time={selectedEvent?.time}
@@ -202,6 +207,10 @@ const styles = StyleSheet.create({
   },
   mapEventCard: {
     marginHorizontal: 8,
+  },
+  emptyEventCard: {
+    alignSelf: "center",
+    marginHorizontal: 0,
   },
   resetButton: {
     alignItems: "center",

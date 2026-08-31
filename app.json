@@ -10,6 +10,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "joe.LGTv2",
+      "backgroundColor": "#808080",
       "config": {},
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -24,6 +25,15 @@
       },
       "predictiveBackGestureEnabled": false
     },
+    "androidStatusBar": {
+      "backgroundColor": "#808080",
+      "barStyle": "dark-content",
+      "translucent": false
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#808080",
+      "barStyle": "dark-content"
+    },
     "web": {
       "output": "static",
       "favicon": ""
@@ -36,7 +46,15 @@
           "image": "./assets/splash.png",
           "imageWidth": 300,
           "resizeMode": "cover",
+          "enableFullScreenImage_legacy": true,
           "backgroundColor": "#808080",
+          "ios": {
+            "image": "./assets/splash.png",
+            "imageWidth": 420,
+            "resizeMode": "contain",
+            "enableFullScreenImage_legacy": false,
+            "backgroundColor": "#808080"
+          },
           "dark": {
             "backgroundColor": "#808080"
           }

@@ -1,13 +1,13 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import Svg, {
-    Circle,
-    Defs,
-    G,
-    LinearGradient,
-    Path,
-    Polygon,
-    Stop,
+  Circle,
+  Defs,
+  G,
+  LinearGradient,
+  Path,
+  Polygon,
+  Stop,
 } from "react-native-svg";
 
 type TrafficGaugeProps = {
@@ -16,11 +16,11 @@ type TrafficGaugeProps = {
 };
 
 export default function TrafficGauge({ value, isSuccess }: TrafficGaugeProps) {
-  // Map traffic ratio to gauge: 1.0 -> far left, 0.5 -> far right.
+  // Map traffic ratio to gauge: 1.0 -> far left, 0.7 -> far right.
   let rotation = 0;
   if (isSuccess) {
     const numValue = typeof value === "string" ? parseFloat(value) : value;
-    const minValue = 0.5; //traffic api value for high congestion
+    const minValue = 0.7; //traffic api value for high congestion
     const maxValue = 1.0; //traffic api value for low congestion
     const clampedValue = Math.max(minValue, Math.min(numValue, maxValue));
     const normalized = (maxValue - clampedValue) / (maxValue - minValue);
