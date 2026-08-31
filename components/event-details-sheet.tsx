@@ -1,8 +1,8 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { Image } from "expo-image";
 import React from "react";
 import {
   Animated,
-  Image,
   type LayoutChangeEvent,
   Linking,
   Modal,
@@ -158,10 +158,7 @@ export default function EventDetailsSheet({
     0,
     sheetHeight - detailsHeight - nonImageVerticalSpace,
   );
-  const maximumImageHeight = Math.min(
-    sheetHeight * 0.3,
-    availableImageHeight,
-  );
+  const maximumImageHeight = Math.min(sheetHeight * 0.3, availableImageHeight);
   const displayedImageWidth = Math.min(
     maximumImageWidth,
     maximumImageHeight * imageAspectRatio,
@@ -172,30 +169,15 @@ export default function EventDetailsSheet({
     if (safeLink) void Linking.openURL(safeLink);
   }, [safeLink]);
 
-  const handleDetailsLayout = React.useCallback(
-    (event: LayoutChangeEvent) => {
-      const nextHeight = Math.ceil(event.nativeEvent.layout.height);
-      setDetailsHeight((currentHeight) =>
-        currentHeight === nextHeight ? currentHeight : nextHeight,
-      );
-    },
-    [],
-  );
+  const handleDetailsLayout = React.useCallback((event: LayoutChangeEvent) => {
+    const nextHeight = Math.ceil(event.nativeEvent.layout.height);
+    setDetailsHeight((currentHeight) =>
+      currentHeight === nextHeight ? currentHeight : nextHeight,
+    );
+  }, []);
 
   React.useEffect(() => {
     setImageAspectRatio(1);
-
-    if (!safeImageUri) return;
-
-    Image.getSize(
-      safeImageUri,
-      (width, imageHeight) => {
-        if (width > 0 && imageHeight > 0) {
-          setImageAspectRatio(width / imageHeight);
-        }
-      },
-      () => {},
-    );
   }, [safeImageUri]);
 
   const resetPosition = React.useCallback(() => {
@@ -283,62 +265,68 @@ export default function EventDetailsSheet({
               <Image
                 source={{ uri: safeImageUri }}
                 style={styles.eventImage}
-                resizeMode="contain"
+                contentFit="contain"
+                placeholder={{ color: "#31465A" }}
+                transition={200}
+                onLoad={(e) => {
+                  const { width: w, height: h } = e.source;
+                  if (w > 0 && h > 0) setImageAspectRatio(w / h);
+                }}
               />
             </View>
           ) : null}
           <View onLayout={handleDetailsLayout} style={styles.details}>
             <Text style={styles.title}>{title}</Text>
-          {locationDetails ? (
-            <View style={styles.locationRow}>
-              <Ionicons name="location-outline" size={24} color="#0B8F39" />
-              <Text style={styles.locationText}>{locationDetails}</Text>
-            </View>
-          ) : null}
-          {locationDetails && formattedStartDate ? (
-            <View style={styles.divider} />
-          ) : null}
-          {formattedStartDate ? (
-            <View style={styles.locationRow}>
-              <Ionicons name="calendar-outline" size={24} color="#0B8F39" />
-              <Text style={styles.locationText}>{formattedStartDate}</Text>
-            </View>
-          ) : null}
-          {formattedStartDate && formattedTime ? (
-            <View style={styles.divider} />
-          ) : null}
-          {formattedTime ? (
-            <View style={styles.locationRow}>
-              <Ionicons name="time-outline" size={24} color="#0B8F39" />
-              <Text style={styles.locationText}>{formattedTime}</Text>
-            </View>
-          ) : null}
-          {formattedTime && safeDescription ? (
-            <View style={styles.divider} />
-          ) : null}
-          {safeDescription ? (
-            <View style={styles.locationRow}>
-              <Ionicons name="book-outline" size={24} color="#0B8F39" />
-              <Text style={styles.locationText}>{safeDescription}</Text>
-            </View>
-          ) : null}
-          {safeDescription && safeLink ? (
-            <View style={styles.divider} />
-          ) : null}
-          {safeLink ? (
-            <View style={styles.locationRow}>
-              <Ionicons name="open-outline" size={24} color="#0B8F39" />
-              <Pressable
-                accessibilityRole="link"
-                onPress={openEventLink}
-                style={styles.linkPressable}
-              >
-                <Text style={[styles.locationText, styles.linkText]}>
-                  More information
-                </Text>
-              </Pressable>
-            </View>
-          ) : null}
+            {locationDetails ? (
+              <View style={styles.locationRow}>
+                <Ionicons name="location-outline" size={24} color="#0B8F39" />
+                <Text style={styles.locationText}>{locationDetails}</Text>
+              </View>
+            ) : null}
+            {locationDetails && formattedStartDate ? (
+              <View style={styles.divider} />
+            ) : null}
+            {formattedStartDate ? (
+              <View style={styles.locationRow}>
+                <Ionicons name="calendar-outline" size={24} color="#0B8F39" />
+                <Text style={styles.locationText}>{formattedStartDate}</Text>
+              </View>
+            ) : null}
+            {formattedStartDate && formattedTime ? (
+              <View style={styles.divider} />
+            ) : null}
+            {formattedTime ? (
+              <View style={styles.locationRow}>
+                <Ionicons name="time-outline" size={24} color="#0B8F39" />
+                <Text style={styles.locationText}>{formattedTime}</Text>
+              </View>
+            ) : null}
+            {formattedTime && safeDescription ? (
+              <View style={styles.divider} />
+            ) : null}
+            {safeDescription ? (
+              <View style={styles.locationRow}>
+                <Ionicons name="book-outline" size={24} color="#0B8F39" />
+                <Text style={styles.locationText}>{safeDescription}</Text>
+              </View>
+            ) : null}
+            {safeDescription && safeLink ? (
+              <View style={styles.divider} />
+            ) : null}
+            {safeLink ? (
+              <View style={styles.locationRow}>
+                <Ionicons name="open-outline" size={24} color="#0B8F39" />
+                <Pressable
+                  accessibilityRole="link"
+                  onPress={openEventLink}
+                  style={styles.linkPressable}
+                >
+                  <Text style={[styles.locationText, styles.linkText]}>
+                    More information
+                  </Text>
+                </Pressable>
+              </View>
+            ) : null}
           </View>
         </Animated.View>
       </View>
