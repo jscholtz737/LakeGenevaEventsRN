@@ -2,11 +2,14 @@
 
 import { Stack } from "expo-router";
 import React from "react";
+import { EventsProvider } from "../hooks/use-events";
 
 export default function TabLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+    <EventsProvider>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+    </EventsProvider>
   );
 }

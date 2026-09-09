@@ -1,4 +1,5 @@
 import { getSupabase } from "../lib/supabase";
+import { AppState } from "react-native";
 import { expandDailyRecurringEvents, mapEventRow } from "./event-mappers";
 
 const EVENTS_TABLE = "events";
@@ -11,6 +12,7 @@ export function subscribeToEvents({
 }) {
   let supabase;
   let channel;
+  let appStateSubscription;
   let isActive = true;
   let requestId = 0;
 
@@ -45,10 +47,20 @@ export function subscribeToEvents({
         () => void loadEvents(),
       )
       .subscribe((status, error) => {
+        if (status === "SUBSCRIBED") {
+          void loadEvents();
+        }
+
         if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
           reportError(error ?? new Error(`Supabase Realtime: ${status}`));
         }
       });
+
+    appStateSubscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        void loadEvents();
+      }
+    });
   } catch (error) {
     reportError(error);
   }
@@ -56,6 +68,7 @@ export function subscribeToEvents({
   return () => {
     isActive = false;
     requestId += 1;
+    appStateSubscription?.remove();
     if (channel && supabase) void supabase.removeChannel(channel);
   };
 }

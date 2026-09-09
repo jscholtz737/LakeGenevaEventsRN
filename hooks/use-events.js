@@ -3,7 +3,9 @@
 import React from "react";
 import { subscribeToEvents } from "../services/events-service";
 
-export function useEvents() {
+const EventsContext = React.createContext(null);
+
+export function EventsProvider({ children }) {
   const [events, setEvents] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
@@ -16,7 +18,6 @@ export function useEvents() {
         setError(null);
       },
       onError: (nextError) => {
-        setEvents([]);
         setIsLoading(false);
         setError(nextError);
       },
@@ -25,5 +26,22 @@ export function useEvents() {
     return unsubscribe;
   }, []);
 
-  return { events, isLoading, error };
+  const value = React.useMemo(
+    () => ({ events, isLoading, error }),
+    [events, isLoading, error],
+  );
+
+  return (
+    <EventsContext.Provider value={value}>{children}</EventsContext.Provider>
+  );
+}
+
+export function useEvents() {
+  const context = React.useContext(EventsContext);
+
+  if (!context) {
+    throw new Error("useEvents must be used within an EventsProvider");
+  }
+
+  return context;
 }

@@ -1,6 +1,8 @@
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React from "react";
 import {
+  ActivityIndicator,
+  AppState,
   Dimensions,
   FlatList,
   Pressable,
@@ -56,8 +58,13 @@ export default function MapScreen() {
   );
   const [isMapMoved, setIsMapMoved] = React.useState(false);
   const [resetKey, setResetKey] = React.useState(0);
+  const isDateManuallySelected = React.useRef(false);
   const flatListRef = React.useRef<FlatList<EventMapItem>>(null);
-  const { events } = useEvents() as { events: EventMapItem[] };
+  const { events, isLoading, error } = useEvents() as {
+    events: EventMapItem[];
+    isLoading: boolean;
+    error: Error | null;
+  };
 
   const mapEvents = React.useMemo(
     () =>
@@ -114,6 +121,26 @@ export default function MapScreen() {
     setResetKey((k) => k + 1);
   }, []);
 
+  const handleDateChange = React.useCallback((date: Date) => {
+    isDateManuallySelected.current = true;
+    setSelectedDate(date);
+  }, []);
+
+  React.useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        const today = startOfDay(new Date());
+
+        if (!isDateManuallySelected.current || selectedDate < today) {
+          isDateManuallySelected.current = false;
+          setSelectedDate(today);
+        }
+      }
+    });
+
+    return () => subscription.remove();
+  }, [selectedDate]);
+
   React.useEffect(() => {
     if (
       mapEvents.length > 0 &&
@@ -126,7 +153,10 @@ export default function MapScreen() {
 
   return (
     <View style={styles.screen}>
-      <Header onDateChange={setSelectedDate} />
+      <Header
+        onDateChange={handleDateChange}
+        selectedDate={selectedDate}
+      />
       <View style={styles.mapContainer}>
         <PlatformMap
           activeEventId={activeEventId}
@@ -142,7 +172,12 @@ export default function MapScreen() {
             <Text style={styles.resetButtonText}>Reset Map</Text>
           </TouchableOpacity>
         )}
-        {mapEvents.length ? (
+        {isLoading && !events.length ? (
+          <View style={[styles.loadingCard, { width: cardWidth }]}>
+            <ActivityIndicator size="large" color="#204A72" />
+            <Text style={styles.loadingText}>Loading events...</Text>
+          </View>
+        ) : mapEvents.length ? (
           <FlatList
             ref={flatListRef}
             data={mapEvents}
@@ -166,6 +201,12 @@ export default function MapScreen() {
             )}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.carouselContent}
+          />
+        ) : error && !events.length ? (
+          <EventCard
+            emptyMessage="Unable to load events."
+            emptySubmessage="Check your connection and try again"
+            style={[styles.emptyEventCard, { width: cardWidth }]}
           />
         ) : (
           <EventCard
@@ -211,6 +252,19 @@ const styles = StyleSheet.create({
   emptyEventCard: {
     alignSelf: "center",
     marginHorizontal: 0,
+  },
+  loadingCard: {
+    alignItems: "center",
+    alignSelf: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    justifyContent: "center",
+    minHeight: 120,
+  },
+  loadingText: {
+    color: "#4A5D73",
+    fontSize: 16,
+    marginTop: 10,
   },
   resetButton: {
     alignItems: "center",

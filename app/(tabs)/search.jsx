@@ -106,7 +106,7 @@ export default function SearchTab() {
           <ActivityIndicator size="large" color="#204A72" />
           <Text style={styles.stateText}>Loading events...</Text>
         </View>
-      ) : error ? (
+      ) : error && !events.length ? (
         <View style={styles.stateContainer}>
           <Text style={styles.stateText}>
             Unable to load events from database.

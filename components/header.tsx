@@ -15,6 +15,7 @@ import {
 import TrafficGauge from "./traffic-gauge";
 
 type HeaderProps = {
+  selectedDate: Date;
   onDateChange?: (date: Date) => void;
 };
 
@@ -47,24 +48,21 @@ function startOfDay(date: Date) {
   return normalizedDate;
 }
 
-const MINIMUM_DATE = startOfDay(new Date());
-const MAXIMUM_DATE = (() => {
-  const d = new Date();
-  d.setDate(d.getDate() + 45);
-  return startOfDay(d);
-})();
+function addDays(date: Date, count: number) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + count);
+  return result;
+}
 
-export default function Header({ onDateChange }: HeaderProps) {
+export default function Header({ selectedDate, onDateChange }: HeaderProps) {
   const [isIOSPickerOpen, setIsIOSPickerOpen] = React.useState(false);
-  const [selectedDate, setSelectedDate] = React.useState(() =>
-    startOfDay(new Date()),
-  );
   const weather = useWeather();
   const traffic = useTraffic();
+  const minimumDate = startOfDay(new Date());
+  const maximumDate = addDays(minimumDate, 45);
 
   const selectDate = (date: Date) => {
     const normalizedDate = startOfDay(date);
-    setSelectedDate(normalizedDate);
     onDateChange?.(normalizedDate);
   };
 
@@ -77,8 +75,8 @@ export default function Header({ onDateChange }: HeaderProps) {
     if (Platform.OS === "android") {
       DateTimePickerAndroid.open({
         mode: "date",
-        minimumDate: MINIMUM_DATE,
-        maximumDate: MAXIMUM_DATE,
+        minimumDate,
+        maximumDate,
         value: selectedDate,
         onChange: (event: DateTimePickerEvent, date?: Date) => {
           if (event.type === "set" && date) {
@@ -149,8 +147,8 @@ export default function Header({ onDateChange }: HeaderProps) {
           <View style={styles.pickerPanel}>
             <DateTimePicker
               mode="date"
-              minimumDate={MINIMUM_DATE}
-              maximumDate={MAXIMUM_DATE}
+              minimumDate={minimumDate}
+              maximumDate={maximumDate}
               value={selectedDate}
               display="inline"
               themeVariant="light"

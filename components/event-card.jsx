@@ -54,8 +54,9 @@ export default function EventCard({
       <View style={styles.infoContainer}>
         <Text
           adjustsFontSizeToFit
+          ellipsizeMode="tail"
           maxFontSizeMultiplier={1}
-          minimumFontScale={0.7}
+          minimumFontScale={0.85}
           numberOfLines={2}
           style={styles.title}
         >
