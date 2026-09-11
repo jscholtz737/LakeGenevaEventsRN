@@ -53,10 +53,8 @@ export default function EventCard({
       />
       <View style={styles.infoContainer}>
         <Text
-          adjustsFontSizeToFit
           ellipsizeMode="tail"
           maxFontSizeMultiplier={1}
-          minimumFontScale={0.85}
           numberOfLines={2}
           style={styles.title}
         >
@@ -113,7 +111,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#10243A",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
   },
   location: {
