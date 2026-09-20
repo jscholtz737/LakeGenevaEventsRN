@@ -21,7 +21,7 @@
       "package": "com.josephscholtz.lakegenevaeventsrn",
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
-        "foregroundImage": "./assets/icon.png"
+        "foregroundImage": "./assets/android-adaptive-icon.png"
       },
       "predictiveBackGestureEnabled": false
     },
@@ -48,6 +48,12 @@
           "resizeMode": "cover",
           "enableFullScreenImage_legacy": true,
           "backgroundColor": "#808080",
+          "android": {
+            "image": "./assets/splash.png",
+            "imageWidth": 240,
+            "resizeMode": "contain",
+            "backgroundColor": "#808080"
+          },
           "ios": {
             "image": "./assets/splash.png",
             "imageWidth": 420,
