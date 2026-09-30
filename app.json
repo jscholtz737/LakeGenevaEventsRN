@@ -2,7 +2,7 @@
   "expo": {
     "name": "Events",
     "slug": "LakeGenevaEventsRN",
-    "version": "4.0.2",
+    "version": "4.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "lakegenevaeventsrn",
@@ -10,6 +10,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "joe.LGTv2",
+      "buildNumber": "9",
       "backgroundColor": "#808080",
       "config": {},
       "infoPlist": {
@@ -19,7 +20,7 @@
     },
     "android": {
       "package": "com.josephscholtz.lakegenevaeventsrn",
-      "versionCode": 8,
+      "versionCode": 9,
       "adaptiveIcon": {
         "backgroundImage": "./assets/android-adaptive-icon-background.png",
         "foregroundImage": "./assets/android-adaptive-icon-centered.png"
