@@ -1,5 +1,6 @@
 import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
+import { useTheme } from "../hooks/use-theme";
 
 /**
  * @param {{
@@ -21,20 +22,38 @@ export default function EventCard({
   emptyMessage,
   emptySubmessage,
 }) {
+  const { colors } = useTheme();
+
   if (emptyMessage) {
     return (
-      <View style={[styles.card, styles.emptyCard, style]}>
+      <View
+        style={[
+          styles.card,
+          styles.emptyCard,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+          },
+          style,
+        ]}
+      >
         <Text
           adjustsFontSizeToFit
           maxFontSizeMultiplier={1}
           minimumFontScale={0.7}
           numberOfLines={1}
-          style={styles.emptyMessage}
+          style={[styles.emptyMessage, { color: colors.text }]}
         >
           {emptyMessage}
         </Text>
         {emptySubmessage ? (
-          <Text style={[styles.location, styles.emptySubmessage]}>
+          <Text
+            style={[
+              styles.location,
+              styles.emptySubmessage,
+              { color: colors.mutedText },
+            ]}
+          >
             {emptySubmessage}
           </Text>
         ) : null}
@@ -43,12 +62,24 @@ export default function EventCard({
   }
 
   return (
-    <View style={[styles.card, style]}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.card,
+          borderColor: colors.border,
+        },
+        style,
+      ]}
+    >
       <Image
         source={{ uri: imageUri }}
-        style={styles.eventImage}
+        style={[
+          styles.eventImage,
+          { backgroundColor: colors.imagePlaceholder },
+        ]}
         contentFit="cover"
-        placeholder={{ color: "#31465A" }}
+        placeholder={{ color: colors.imagePlaceholder }}
         transition={200}
       />
       <View style={styles.infoContainer}>
@@ -56,16 +87,19 @@ export default function EventCard({
           ellipsizeMode="tail"
           maxFontSizeMultiplier={1}
           numberOfLines={2}
-          style={styles.title}
+          style={[styles.title, { color: colors.text }]}
         >
           {title}
         </Text>
-        <Text numberOfLines={2} style={styles.location}>
+        <Text
+          numberOfLines={2}
+          style={[styles.location, { color: colors.mutedText }]}
+        >
           {location}
         </Text>
       </View>
       <View style={styles.timeContainer}>
-        <Text style={styles.time}>{time}</Text>
+        <Text style={[styles.time, { color: colors.text }]}>{time}</Text>
       </View>
     </View>
   );
@@ -74,8 +108,6 @@ export default function EventCard({
 const styles = StyleSheet.create({
   card: {
     alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderColor: "#DCE4EC",
     borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
@@ -85,7 +117,6 @@ const styles = StyleSheet.create({
   },
   eventImage: {
     aspectRatio: 1,
-    backgroundColor: "#31465A",
     borderRadius: 10,
     width: "25%",
   },
@@ -95,7 +126,6 @@ const styles = StyleSheet.create({
     minHeight: 92,
   },
   emptyMessage: {
-    color: "#10243A",
     fontSize: 18,
     fontWeight: "700",
     fontStyle: "italic",
@@ -110,12 +140,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   title: {
-    color: "#10243A",
     fontSize: 16,
     fontWeight: "700",
   },
   location: {
-    color: "#4A5D73",
     fontSize: 14,
     fontStyle: "italic",
     marginTop: 6,
@@ -126,7 +154,6 @@ const styles = StyleSheet.create({
     width: 72,
   },
   time: {
-    color: "#10243A",
     fontSize: 14,
     fontWeight: "600",
   },

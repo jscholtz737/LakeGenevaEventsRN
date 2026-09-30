@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import EventCard from "../../components/event-card";
 import EventDetailsSheet from "../../components/event-details-sheet";
 import { useEvents } from "../../hooks/use-events";
+import { useTheme } from "../../hooks/use-theme";
 
 function normalizeText(value) {
   if (typeof value !== "string") {
@@ -31,6 +32,7 @@ function eventSearchText(event) {
 }
 
 export default function SearchTab() {
+  const { colors } = useTheme();
   const { events, isLoading, error } = useEvents();
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
@@ -73,8 +75,19 @@ export default function SearchTab() {
   }, [submittedQuery, events]);
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <View style={styles.searchBarContainer}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={["top", "left", "right"]}
+    >
+      <View
+        style={[
+          styles.searchBarContainer,
+          {
+            backgroundColor: colors.background,
+            borderBottomColor: colors.listBorder,
+          },
+        ]}
+      >
         <View style={styles.searchInputWrapper}>
           <TextInput
             autoCapitalize="none"
@@ -83,9 +96,16 @@ export default function SearchTab() {
             onChangeText={setQuery}
             onSubmitEditing={handleSearchSubmit}
             placeholder="Search events"
-            placeholderTextColor="#6B7D90"
+            placeholderTextColor={colors.placeholder}
             returnKeyType="search"
-            style={styles.searchInput}
+            style={[
+              styles.searchInput,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.searchBorder,
+                color: colors.text,
+              },
+            ]}
             value={query}
           />
           {hasTypedQuery ? (
@@ -95,7 +115,9 @@ export default function SearchTab() {
               onPress={clearSearch}
               style={styles.clearButton}
             >
-              <Text style={styles.clearButtonText}>X</Text>
+              <Text style={[styles.clearButtonText, { color: colors.placeholder }]}>
+                X
+              </Text>
             </Pressable>
           ) : null}
         </View>
@@ -103,18 +125,20 @@ export default function SearchTab() {
 
       {isLoading ? (
         <View style={styles.stateContainer}>
-          <ActivityIndicator size="large" color="#204A72" />
-          <Text style={styles.stateText}>Loading events...</Text>
+          <ActivityIndicator size="large" color={colors.accent} />
+          <Text style={[styles.stateText, { color: colors.mutedText }]}>
+            Loading events...
+          </Text>
         </View>
       ) : error && !events.length ? (
         <View style={styles.stateContainer}>
-          <Text style={styles.stateText}>
+          <Text style={[styles.stateText, { color: colors.mutedText }]}>
             Unable to load events from database.
           </Text>
         </View>
       ) : !hasSubmittedQuery ? (
         <View style={styles.stateContainer}>
-          <Text style={styles.stateText}>
+          <Text style={[styles.stateText, { color: colors.mutedText }]}>
             {hasTypedQuery
               ? "Press Enter to search for events."
               : "Type in the search bar to find events."}
@@ -122,7 +146,9 @@ export default function SearchTab() {
         </View>
       ) : !filteredEvents.length ? (
         <View style={styles.stateContainer}>
-          <Text style={styles.stateText}>No matching events found.</Text>
+          <Text style={[styles.stateText, { color: colors.mutedText }]}>
+            No matching events found.
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -160,11 +186,8 @@ export default function SearchTab() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F7FB",
   },
   searchBarContainer: {
-    backgroundColor: "#F4F7FB",
-    borderBottomColor: "#DFE7EF",
     borderBottomWidth: 1,
     paddingBottom: 10,
     paddingHorizontal: 16,
@@ -174,11 +197,8 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   searchInput: {
-    backgroundColor: "#FFFFFF",
-    borderColor: "#D3DDE8",
     borderRadius: 12,
     borderWidth: 1,
-    color: "#10243A",
     fontSize: 16,
     paddingHorizontal: 14,
     paddingRight: 40,
@@ -195,7 +215,6 @@ const styles = StyleSheet.create({
     width: 22,
   },
   clearButtonText: {
-    color: "#6B7D90",
     fontSize: 13,
     fontWeight: "700",
     lineHeight: 13,
@@ -211,7 +230,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   stateText: {
-    color: "#4A5D73",
     fontSize: 16,
     marginTop: 12,
     textAlign: "center",

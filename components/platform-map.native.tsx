@@ -2,6 +2,9 @@ import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 
+import { GOOGLE_MAP_DARK_STYLE } from "../constants/google-map-styles";
+import { useTheme } from "../hooks/use-theme";
+
 const GENEVA_LAKE_COORDS = {
   latitude: 42.5722,
   longitude: -88.4975,
@@ -39,8 +42,10 @@ export default function PlatformMapNative({
   onMapMoved,
   resetKey,
 }: PlatformMapNativeProps) {
+  const { theme } = useTheme();
   const mapViewRef = React.useRef<MapView>(null);
   const isResetting = React.useRef(false);
+  const isDark = theme === "dark";
 
   React.useEffect(() => {
     if (!resetKey) return;
@@ -68,10 +73,13 @@ export default function PlatformMapNative({
     <View style={styles.container}>
       <MapView
         ref={mapViewRef}
+        customMapStyle={isDark ? GOOGLE_MAP_DARK_STYLE : []}
         initialCamera={INITIAL_CAMERA}
-        style={styles.map}
-        provider={PROVIDER_GOOGLE}
+        key={theme}
         onRegionChangeComplete={handleRegionChangeComplete}
+        provider={PROVIDER_GOOGLE}
+        style={styles.map}
+        userInterfaceStyle={theme}
       >
         {events.map((event) => {
           const isActive = event.id === activeEventId;

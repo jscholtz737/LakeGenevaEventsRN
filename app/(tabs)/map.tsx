@@ -16,6 +16,7 @@ import EventDetailsSheet from "../../components/event-details-sheet";
 import Header from "../../components/header";
 import PlatformMap from "../../components/platform-map";
 import { useEvents } from "../../hooks/use-events";
+import { useTheme } from "../../hooks/use-theme";
 
 type EventMapItem = {
   description: string;
@@ -46,6 +47,7 @@ function isSameDay(left: Date | null, right: Date) {
 }
 
 export default function MapScreen() {
+  const { colors } = useTheme();
   const tabBarHeight = useBottomTabBarHeight();
   const cardWidth = Math.max(Dimensions.get("window").width - 32, 280);
   const snapInterval = cardWidth + 16;
@@ -168,14 +170,29 @@ export default function MapScreen() {
       </View>
       <View style={[styles.carouselContainer, { bottom: tabBarHeight - 50 }]}>
         {isMapMoved && (
-          <TouchableOpacity onPress={handleResetMap} style={styles.resetButton}>
-            <Text style={styles.resetButtonText}>Reset Map</Text>
+          <TouchableOpacity
+            onPress={handleResetMap}
+            style={[
+              styles.resetButton,
+              { backgroundColor: colors.resetButton },
+            ]}
+          >
+            <Text style={[styles.resetButtonText, { color: colors.text }]}>
+              Reset Map
+            </Text>
           </TouchableOpacity>
         )}
         {isLoading && !events.length ? (
-          <View style={[styles.loadingCard, { width: cardWidth }]}>
-            <ActivityIndicator size="large" color="#204A72" />
-            <Text style={styles.loadingText}>Loading events...</Text>
+          <View
+            style={[
+              styles.loadingCard,
+              { backgroundColor: colors.card, width: cardWidth },
+            ]}
+          >
+            <ActivityIndicator size="large" color={colors.accent} />
+            <Text style={[styles.loadingText, { color: colors.mutedText }]}>
+              Loading events...
+            </Text>
           </View>
         ) : mapEvents.length ? (
           <FlatList
@@ -256,20 +273,17 @@ const styles = StyleSheet.create({
   loadingCard: {
     alignItems: "center",
     alignSelf: "center",
-    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     justifyContent: "center",
     minHeight: 120,
   },
   loadingText: {
-    color: "#4A5D73",
     fontSize: 16,
     marginTop: 10,
   },
   resetButton: {
     alignItems: "center",
     alignSelf: "center",
-    backgroundColor: "#90EE90",
     borderColor: "#000000",
     borderRadius: 20,
     borderWidth: 0.5,
@@ -283,7 +297,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   resetButtonText: {
-    color: "#10243A",
     fontSize: 14,
     fontWeight: "600",
   },

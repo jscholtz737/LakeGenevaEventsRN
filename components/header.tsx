@@ -6,6 +6,7 @@ import { Image } from "expo-image";
 import React from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTheme } from "../hooks/use-theme";
 import { useTraffic } from "../services/traffic-api";
 import {
   WEATHER_ICON_ASSETS,
@@ -55,6 +56,7 @@ function addDays(date: Date, count: number) {
 }
 
 export default function Header({ selectedDate, onDateChange }: HeaderProps) {
+  const { colors, theme } = useTheme();
   const [isIOSPickerOpen, setIsIOSPickerOpen] = React.useState(false);
   const weather = useWeather();
   const traffic = useTraffic();
@@ -78,6 +80,7 @@ export default function Header({ selectedDate, onDateChange }: HeaderProps) {
         minimumDate,
         maximumDate,
         value: selectedDate,
+        themeVariant: theme,
         onChange: (event: DateTimePickerEvent, date?: Date) => {
           if (event.type === "set" && date) {
             selectDate(date);
@@ -100,38 +103,53 @@ export default function Header({ selectedDate, onDateChange }: HeaderProps) {
   };
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safeArea}>
-      <View style={styles.navBar}>
+    <SafeAreaView
+      edges={["top"]}
+      style={[styles.safeArea, { backgroundColor: colors.surface }]}
+    >
+      <View
+        style={[
+          styles.navBar,
+          {
+            backgroundColor: colors.surface,
+            borderBottomColor: colors.divider,
+          },
+        ]}
+      >
         <View style={styles.leftContainer}>
           <Pressable
             onPress={openNativeDatePicker}
             style={styles.dropdownTrigger}
           >
             <View style={styles.dateContainer}>
-              <Text style={styles.dayName}>
+              <Text style={[styles.dayName, { color: colors.text }]}>
                 {formatDateLabel(selectedDate).dayName}
               </Text>
-              <Text style={styles.monthDay}>
+              <Text style={[styles.monthDay, { color: colors.text }]}>
                 {formatDateLabel(selectedDate).monthDay}
               </Text>
             </View>
-            <Text style={styles.caret}>▾</Text>
+            <Text style={[styles.caret, { color: colors.mutedText }]}>▾</Text>
           </Pressable>
         </View>
-        <View style={styles.divider} />
+        <View
+          style={[styles.divider, { backgroundColor: colors.headerDivider }]}
+        />
         <View style={styles.rightContainer}>
           <View style={styles.sideSpace}>
             {weather && weatherIconSource ? (
               <View style={styles.weatherContainer}>
                 <Image source={weatherIconSource} style={styles.weatherIcon} />
-                <Text style={styles.weatherTemp}>
+                <Text style={[styles.weatherTemp, { color: colors.text }]}>
                   {formatTemperature(weather.tempF)}
                 </Text>
               </View>
             ) : null}
           </View>
           <View style={styles.conditionsContainer}>
-            <Text style={styles.conditionsLabel}>{"Current\nConditions"}</Text>
+            <Text style={[styles.conditionsLabel, { color: colors.text }]}>
+              {"Current\nConditions"}
+            </Text>
           </View>
           <View style={styles.sideSpace}>
             <View style={styles.gaugeContainer}>
@@ -139,19 +157,29 @@ export default function Header({ selectedDate, onDateChange }: HeaderProps) {
                 value={traffic.value}
                 isSuccess={traffic.isSuccess}
               />
-              <Text style={styles.gaugeLabel}>Congestion</Text>
+              <Text style={[styles.gaugeLabel, { color: colors.text }]}>
+                Congestion
+              </Text>
             </View>
           </View>
         </View>
         {Platform.OS === "ios" && isIOSPickerOpen ? (
-          <View style={styles.pickerPanel}>
+          <View
+            style={[
+              styles.pickerPanel,
+              {
+                backgroundColor: colors.surface,
+                borderTopColor: colors.divider,
+              },
+            ]}
+          >
             <DateTimePicker
               mode="date"
               minimumDate={minimumDate}
               maximumDate={maximumDate}
               value={selectedDate}
               display="inline"
-              themeVariant="light"
+              themeVariant={theme}
               onChange={onIOSDateChange}
             />
           </View>
@@ -164,13 +192,10 @@ export default function Header({ selectedDate, onDateChange }: HeaderProps) {
 const NAV_BAR_HEIGHT = 56;
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#ffffff",
     zIndex: 20,
   },
   navBar: {
     alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderBottomColor: "#E8EDF2",
     borderBottomWidth: 1,
     flexDirection: "row",
     height: NAV_BAR_HEIGHT,
@@ -202,7 +227,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   divider: {
-    backgroundColor: "#000000",
     height: 32,
     marginRight: 12,
     width: 2,
@@ -223,25 +247,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   dayName: {
-    color: "#10243A",
     fontSize: 26,
     fontWeight: "600",
     letterSpacing: 0.2,
   },
   monthDay: {
-    color: "#10243A",
     fontSize: 14,
     fontWeight: "600",
     letterSpacing: 0.2,
   },
   dropdownLabel: {
-    color: "#10243A",
     fontSize: 20,
     fontWeight: "600",
     letterSpacing: 0.2,
   },
   caret: {
-    color: "#4A5D73",
     fontSize: 42,
     marginLeft: 8,
     marginTop: 1,
@@ -255,13 +275,11 @@ const styles = StyleSheet.create({
     width: 40,
   },
   weatherTemp: {
-    color: "#10243A",
     fontSize: 13,
     fontWeight: "600",
     marginTop: -3,
   },
   conditionsLabel: {
-    color: "#10243A",
     fontSize: 13,
     fontStyle: "italic",
     fontWeight: "600",
@@ -273,7 +291,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   gaugeLabel: {
-    color: "#10243A",
     fontSize: 13,
     fontWeight: "600",
     lineHeight: 12,
@@ -281,8 +298,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   pickerPanel: {
-    backgroundColor: "#ffffff",
-    borderTopColor: "#E8EDF2",
     borderTopWidth: 1,
     left: 0,
     paddingHorizontal: 8,

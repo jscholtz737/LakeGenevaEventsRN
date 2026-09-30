@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import EventCard from "../../components/event-card";
 import EventDetailsSheet from "../../components/event-details-sheet";
 import { useEvents } from "../../hooks/use-events";
+import { useTheme } from "../../hooks/use-theme";
 
 function dateSortValue(value) {
   if (!(value instanceof Date)) {
@@ -115,6 +116,7 @@ function buildSectionRows(events) {
 }
 
 export default function AllTab() {
+  const { colors } = useTheme();
   const { events, isLoading, error } = useEvents();
   const [selectedEvent, setSelectedEvent] = useState(null);
   const sectionRows = useMemo(() => {
@@ -139,10 +141,15 @@ export default function AllTab() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        edges={["top", "left", "right"]}
+      >
         <View style={styles.stateContainer}>
-          <ActivityIndicator size="large" color="#204A72" />
-          <Text style={styles.stateText}>Loading events...</Text>
+          <ActivityIndicator size="large" color={colors.accent} />
+          <Text style={[styles.stateText, { color: colors.mutedText }]}>
+            Loading events...
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -150,9 +157,12 @@ export default function AllTab() {
 
   if (!events.length) {
     return (
-      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        edges={["top", "left", "right"]}
+      >
         <View style={styles.stateContainer}>
-          <Text style={styles.stateText}>
+          <Text style={[styles.stateText, { color: colors.mutedText }]}>
             {error
               ? "Unable to load events from database."
               : "No events found in database."}
@@ -163,12 +173,24 @@ export default function AllTab() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={["top", "left", "right"]}
+    >
       <FlatList
         data={sectionRows}
         renderItem={({ item }) => {
           if (item.type === "header") {
-            return <Text style={styles.dateHeader}>{item.label}</Text>;
+            return (
+              <Text
+                style={[
+                  styles.dateHeader,
+                  { backgroundColor: colors.background, color: colors.text },
+                ]}
+              >
+                {item.label}
+              </Text>
+            );
           }
 
           return (
@@ -212,15 +234,12 @@ export default function AllTab() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F7FB",
   },
   listContent: {
     paddingTop: 20,
     paddingBottom: 8,
   },
   dateHeader: {
-    backgroundColor: "#F4F7FB",
-    color: "#10243A",
     fontSize: 20,
     fontStyle: "italic",
     fontWeight: "700",
@@ -236,7 +255,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   stateText: {
-    color: "#4A5D73",
     fontSize: 16,
     marginTop: 12,
     textAlign: "center",

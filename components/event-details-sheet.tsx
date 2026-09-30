@@ -15,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "../hooks/use-theme";
 
 type EventDetailsSheetProps = {
   description?: string;
@@ -130,6 +131,7 @@ export default function EventDetailsSheet({
   title,
   visible,
 }: EventDetailsSheetProps) {
+  const { colors } = useTheme();
   const { height, width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [imageAspectRatio, setImageAspectRatio] = React.useState(1);
@@ -238,12 +240,13 @@ export default function EventDetailsSheet({
       transparent
       visible={visible}
     >
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
         <Pressable onPress={onClose} style={styles.backdrop} />
         <Animated.View
           style={[
             styles.sheet,
             {
+              backgroundColor: colors.surface,
               height: sheetHeight,
               marginTop: topBuffer,
               transform: [{ translateY }],
@@ -251,12 +254,13 @@ export default function EventDetailsSheet({
           ]}
           {...panResponder.panHandlers}
         >
-          <View style={styles.grabber} />
+          <View style={[styles.grabber, { backgroundColor: colors.grabber }]} />
           {safeImageUri ? (
             <View
               style={[
                 styles.eventImageFrame,
                 {
+                  backgroundColor: colors.imagePlaceholder,
                   height: displayedImageHeight,
                   width: displayedImageWidth,
                 },
@@ -275,52 +279,94 @@ export default function EventDetailsSheet({
             </View>
           ) : null}
           <View onLayout={handleDetailsLayout} style={styles.details}>
-            <Text style={styles.title}>{title}</Text>
+            <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
             {locationDetails ? (
               <View style={styles.locationRow}>
-                <Ionicons name="location-outline" size={24} color="#0B8F39" />
-                <Text style={styles.locationText}>{locationDetails}</Text>
+                <Ionicons
+                  name="location-outline"
+                  size={24}
+                  color={colors.iconAccent}
+                />
+                <Text style={[styles.locationText, { color: colors.text }]}>
+                  {locationDetails}
+                </Text>
               </View>
             ) : null}
             {locationDetails && formattedStartDate ? (
-              <View style={styles.divider} />
+              <View
+                style={[styles.divider, { backgroundColor: colors.border }]}
+              />
             ) : null}
             {formattedStartDate ? (
               <View style={styles.locationRow}>
-                <Ionicons name="calendar-outline" size={24} color="#0B8F39" />
-                <Text style={styles.locationText}>{formattedStartDate}</Text>
+                <Ionicons
+                  name="calendar-outline"
+                  size={24}
+                  color={colors.iconAccent}
+                />
+                <Text style={[styles.locationText, { color: colors.text }]}>
+                  {formattedStartDate}
+                </Text>
               </View>
             ) : null}
             {formattedStartDate && formattedTime ? (
-              <View style={styles.divider} />
+              <View
+                style={[styles.divider, { backgroundColor: colors.border }]}
+              />
             ) : null}
             {formattedTime ? (
               <View style={styles.locationRow}>
-                <Ionicons name="time-outline" size={24} color="#0B8F39" />
-                <Text style={styles.locationText}>{formattedTime}</Text>
+                <Ionicons
+                  name="time-outline"
+                  size={24}
+                  color={colors.iconAccent}
+                />
+                <Text style={[styles.locationText, { color: colors.text }]}>
+                  {formattedTime}
+                </Text>
               </View>
             ) : null}
             {formattedTime && safeDescription ? (
-              <View style={styles.divider} />
+              <View
+                style={[styles.divider, { backgroundColor: colors.border }]}
+              />
             ) : null}
             {safeDescription ? (
               <View style={styles.locationRow}>
-                <Ionicons name="book-outline" size={24} color="#0B8F39" />
-                <Text style={styles.locationText}>{safeDescription}</Text>
+                <Ionicons
+                  name="book-outline"
+                  size={24}
+                  color={colors.iconAccent}
+                />
+                <Text style={[styles.locationText, { color: colors.text }]}>
+                  {safeDescription}
+                </Text>
               </View>
             ) : null}
             {safeDescription && safeLink ? (
-              <View style={styles.divider} />
+              <View
+                style={[styles.divider, { backgroundColor: colors.border }]}
+              />
             ) : null}
             {safeLink ? (
               <View style={styles.locationRow}>
-                <Ionicons name="open-outline" size={24} color="#0B8F39" />
+                <Ionicons
+                  name="open-outline"
+                  size={24}
+                  color={colors.iconAccent}
+                />
                 <Pressable
                   accessibilityRole="link"
                   onPress={openEventLink}
                   style={styles.linkPressable}
                 >
-                  <Text style={[styles.locationText, styles.linkText]}>
+                  <Text
+                    style={[
+                      styles.locationText,
+                      styles.linkText,
+                      { color: colors.text },
+                    ]}
+                  >
                     More information
                   </Text>
                 </Pressable>
@@ -335,7 +381,6 @@ export default function EventDetailsSheet({
 
 const styles = StyleSheet.create({
   overlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.24)",
     flex: 1,
     justifyContent: "flex-end",
   },
@@ -343,7 +388,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sheet: {
-    backgroundColor: "#ffffff",
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     paddingBottom: 28,
@@ -352,7 +396,6 @@ const styles = StyleSheet.create({
   },
   grabber: {
     alignSelf: "center",
-    backgroundColor: "#C7D2DE",
     borderRadius: 2,
     height: 4,
     marginBottom: 16,
@@ -360,7 +403,6 @@ const styles = StyleSheet.create({
   },
   eventImageFrame: {
     alignSelf: "center",
-    backgroundColor: "#31465A",
     borderRadius: 20,
     elevation: 4,
     marginBottom: 50,
@@ -378,7 +420,6 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
   },
   title: {
-    color: "#10243A",
     fontSize: 22,
     fontWeight: "700",
     textAlign: "center",
@@ -391,7 +432,6 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   locationText: {
-    color: "#10243A",
     flexShrink: 1,
     fontSize: 16,
     marginLeft: 20,
@@ -405,7 +445,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     alignSelf: "center",
-    backgroundColor: "#DCE4EC",
     height: 1,
     marginTop: 14,
     width: "75%",
