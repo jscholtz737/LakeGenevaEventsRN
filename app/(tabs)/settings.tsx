@@ -1,4 +1,5 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import Constants from "expo-constants";
 import {
   Linking,
   Platform,
@@ -49,10 +50,11 @@ async function openRateApp() {
 export default function SettingsTab() {
   const { colors, setTheme, theme } = useTheme();
   const isDark = theme === "dark";
+  const appVersion = Constants.expoConfig?.version;
 
   return (
     <SafeAreaView
-      edges={["top", "left", "right"]}
+      edges={["top", "left", "right", "bottom"]}
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <Text style={[styles.pageTitle, { color: colors.text }]}>Settings</Text>
@@ -66,17 +68,19 @@ export default function SettingsTab() {
           <Text style={[styles.rowLabel, { color: colors.text }]}>
             Dark mode
           </Text>
-          <Switch
-            accessibilityLabel="Dark mode"
-            ios_backgroundColor={colors.switchTrackOff}
-            onValueChange={(value) => setTheme(value ? "dark" : "light")}
-            thumbColor={colors.switchThumb}
-            trackColor={{
-              false: colors.switchTrackOff,
-              true: colors.switchTrackOn,
-            }}
-            value={isDark}
-          />
+          <View style={styles.rowAccessory}>
+            <Switch
+              accessibilityLabel="Dark mode"
+              ios_backgroundColor={colors.switchTrackOff}
+              onValueChange={(value) => setTheme(value ? "dark" : "light")}
+              thumbColor={colors.switchThumb}
+              trackColor={{
+                false: colors.switchTrackOff,
+                true: colors.switchTrackOn,
+              }}
+              value={isDark}
+            />
+          </View>
         </View>
         <View style={[styles.rowDivider, { backgroundColor: colors.border }]} />
         <Pressable
@@ -94,12 +98,21 @@ export default function SettingsTab() {
           <Text style={[styles.rowLabel, { color: colors.text }]}>
             Rate this app
           </Text>
-          <FontAwesome6
-            color={colors.mutedText}
-            name="arrow-up-right-from-square"
-            size={18}
-          />
+          <View style={styles.rowAccessory}>
+            <FontAwesome6
+              color={colors.mutedText}
+              name="arrow-up-right-from-square"
+              size={18}
+            />
+          </View>
         </Pressable>
+      </View>
+      <View style={styles.footer}>
+        {appVersion ? (
+          <Text style={[styles.versionText, { color: colors.mutedText }]}>
+            Version {appVersion}
+          </Text>
+        ) : null}
       </View>
     </SafeAreaView>
   );
@@ -142,5 +155,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     paddingRight: 12,
+  },
+  rowAccessory: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 51,
+  },
+  footer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+  },
+  versionText: {
+    fontSize: 14,
+    textAlign: "center",
   },
 });
