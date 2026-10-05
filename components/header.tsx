@@ -189,7 +189,7 @@ export default function Header({ selectedDate, onDateChange }: HeaderProps) {
   );
 }
 
-const NAV_BAR_HEIGHT = 56;
+const NAV_BAR_HEIGHT = 62;
 const styles = StyleSheet.create({
   safeArea: {
     zIndex: 20,
@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: NAV_BAR_HEIGHT,
     justifyContent: "flex-start",
+    paddingBottom: 6,
     paddingHorizontal: 12,
     position: "relative",
   },
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
   gaugeLabel: {
     fontSize: 13,
     fontWeight: "600",
-    lineHeight: 12,
+    lineHeight: 16,
     marginTop: -2,
     textAlign: "center",
   },
